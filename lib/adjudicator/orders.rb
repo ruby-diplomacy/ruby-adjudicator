@@ -13,9 +13,9 @@ module Diplomacy
   INVALID = 2
 
   class GenericOrder
-    @@log = Logger.new( 'adjudicator.log', 'daily' )
     attr_accessor :unit, :unit_area, :dst, :status, :resolution, :unit_area_coast, :dst_coast
     def initialize(unit, unit_area, dst)
+      @logger = Diplomacy.logger
       @unit = unit
       @unit_area = unit_area
       @dst = dst
@@ -80,12 +80,12 @@ module Diplomacy
     end
     
     def failed?
-      @@log.debug "UNRESOLVED ORDER! (#{to_s})"if unresolved?
+      @logger.debug "UNRESOLVED ORDER! (#{to_s})"if unresolved?
       @resolution == FAILURE
     end
     
     def succeeded?
-      @@log.debug "UNRESOLVED ORDER! (#{to_s})"if unresolved?
+      @logger.debug "UNRESOLVED ORDER! (#{to_s})"if unresolved?
       @resolution == SUCCESS
     end
     

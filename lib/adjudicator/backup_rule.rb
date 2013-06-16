@@ -2,9 +2,8 @@ require_relative 'orders'
 
 module Diplomacy
   class BackupRule
-    @@log = Logger.new( 'adjudicator.log', 'daily' )
-    
     def initialize(*rules)
+      @logger = Diplomacy.logger
       @rules = []
       rules.each do |rule|
         if RULES.has_key? rule
@@ -16,17 +15,17 @@ module Diplomacy
     end
     
     def resolve!(loop)
-      @@log.debug "Using backup rule..."
+      @logger.debug "Using backup rule..."
       
       @rules.each do |rule|
         if rule.match(loop)
           rule.resolve!(loop)
-          @@log.debug "Used #{rule.class}"
+          @logger.debug "Used #{rule.class}"
           return
         end
       end
       
-      @@log.debug "No rule matched, using All Hold fallback"
+      @logger.debug "No rule matched, using All Hold fallback"
       
       # 'All Hold' fallback
       loop.each do |order|

@@ -1,5 +1,3 @@
-require 'logger'
-
 require_relative 'orders'
 require_relative 'state'
 require_relative 'backup_rule'
@@ -7,9 +5,8 @@ require_relative '../graph/graph'
 
 module Diplomacy
   class Validator
-    @@log = Logger.new( 'adjudicator.log', 'daily' )
-    
     def initialize(state, order_list, map = nil)
+      @logger = Diplomacy.logger
       @state = state
       @map = map
       @orders = OrderCollection.new(order_list)
@@ -19,7 +16,7 @@ module Diplomacy
     def validate_orders
       @orders.each do |order|
         order.invalidate unless valid_order?(order)
-        @@log.debug "Decided: #{order.status_readable}"
+        @logger.debug "Decided: #{order.status_readable}"
       end
       sanitized_orders = @orders.orders.collect {|order| order.invalid? ? Hold.new(order.unit, order.unit_area) : order}
       invalid_orders = @orders.orders.collect {|order| order.invalid? ? order : nil }
@@ -28,7 +25,7 @@ module Diplomacy
     end
     
     def valid_order?(order)
-      @@log.debug "Validating #{order}"
+      @logger.debug "Validating #{order}"
       case order
       when Move
         return true if valid_move?(order)
@@ -68,12 +65,11 @@ module Diplomacy
   end
   
   class Adjudicator
-    @@log = Logger.new( 'adjudicator.log', 'daily' )
-    
     attr_accessor :orders
     attr_accessor :map
     
     def initialize(map, backup_rule=nil)
+      @logger = Diplomacy.logger
       @map = map
       if backup_rule
         @backup_rule = backup_rule
@@ -104,14 +100,14 @@ module Diplomacy
 
     def resolve_order!(order)
       if order.resolved?
-        @@log.debug "#{order} already resolved: #{order.status_readable}"
+        @logger.debug "#{order} already resolved: #{order.status_readable}"
         return
       end
       
       unless @loop_detector.member?(order) or order.guessing?
         @loop_detector << order
       else
-        @@log.debug("Loop detected: #{@loop_detector} (but @loop is #{@loop})")
+        @logger.debug("Loop detected: #{@loop_detector} (but @loop is #{@loop})")
         
         loop = Array.new(@loop_detector)
           @loop_detector = []
@@ -162,7 +158,7 @@ module Diplomacy
         if dep_move.present?
           # check if either move convoyed - in that case there is no head to head
           not_convoyed = @orders.convoys_for_move(dep_move).empty? || @orders.convoys_for_move(order).empty?
-		  @@log.debug "#{dep_move}, convoyed: #{!not_convoyed}"
+		  @logger.debug "#{dep_move}, convoyed: #{!not_convoyed}"
           
           # add the move from the destination unless it's a head to head
           dependencies << dep_move unless dep_move.dst == order.unit_area && not_convoyed
@@ -185,15 +181,15 @@ module Diplomacy
         dependencies.concat(@orders.moves_by_dst(order.unit_area)) 
       end
       
-      @@log.debug "Dependencies for #{order} are #{dependencies}"
+      @logger.debug "Dependencies for #{order} are #{dependencies}"
       
       dependencies
     end
     
     def adjudicate!(order)
-      @@log.debug "Adjudicating #{order}"
+      @logger.debug "Adjudicating #{order}"
       if order.resolved?
-        @@log.debug "#{order} already resolved: #{order.status_readable}"
+        @logger.debug "#{order} already resolved: #{order.status_readable}"
         return
       end
       
@@ -210,18 +206,18 @@ module Diplomacy
         
         attack_strength = calculate_attack_strength(order)
         
-        @@log.debug "Has attack strength #{attack_strength}"
+        @logger.debug "Has attack strength #{attack_strength}"
         
         competing_strengths = []
         
         unless head_to_head_move.nil? || convoyed
           # there is a head to head battle
           competing_strengths << calculate_defend_strength(head_to_head_move)
-          @@log.debug "Defend strength for #{head_to_head_move}: #{competing_strengths[0]}"
+          @logger.debug "Defend strength for #{head_to_head_move}: #{competing_strengths[0]}"
         else
           # there is no head to head battle
           competing_strengths << calculate_hold_strength(order.dst)
-          @@log.debug "Hold strength for #{order.dst}: #{competing_strengths[0]}"
+          @logger.debug "Hold strength for #{order.dst}: #{competing_strengths[0]}"
         end
         
         # competing moves - if opponent dislodged in a head to head, they don't prevent
@@ -229,20 +225,20 @@ module Diplomacy
           dislodger = dislodged(competing_move)
           unless (not dislodger.nil?) && competing_move.dst == dislodger.unit_area
             competing_strengths << calculate_prevent_strength(competing_move)
-            @@log.debug "Prevent strength for #{competing_move}: #{competing_strengths[-1]}"
+            @logger.debug "Prevent strength for #{competing_move}: #{competing_strengths[-1]}"
           end
         end
         
         competing_strengths.sort!
         
-        @@log.debug "Competing strengths: #{competing_strengths}"
+        @logger.debug "Competing strengths: #{competing_strengths}"
         
         competing_strengths.empty? || attack_strength > competing_strengths[-1] ? 
           order.succeed : order.fail
       when Support, SupportHold
         if dislodged(order)
           order.fail
-          @@log.debug "Decision (#{order}): #{order.resolution_readable}"
+          @logger.debug "Decision (#{order}): #{order.resolution_readable}"
           return
         end
           
@@ -253,7 +249,7 @@ module Diplomacy
           if order.nationality != move.nationality &&
               move.unit_area != order.dst && check_path(move)
             order.fail
-            @@log.debug "Decision (#{order}): #{order.resolution_readable}"
+            @logger.debug "Decision (#{order}): #{order.resolution_readable}"
             return 
           end
         end
@@ -280,20 +276,20 @@ module Diplomacy
         moves = dislodged(order)
         unless moves.nil?
           order.fail
-          @@log.debug moves
-          @@log.debug "Decision (dislodged): #{order.resolution_readable}"
+          @logger.debug moves
+          @logger.debug "Decision (dislodged): #{order.resolution_readable}"
           return
         end
         
         if @orders.convoyed_move(order).nil?
           order.fail
-          @@log.debug "Decision (#{order}): #{order.resolution_readable}"
+          @logger.debug "Decision (#{order}): #{order.resolution_readable}"
           return
         end
       
         order.succeed
       end
-      @@log.debug "Decision (#{order}): #{order.resolution_readable}"
+      @logger.debug "Decision (#{order}): #{order.resolution_readable}"
     end
     
     def check_path(move)
@@ -302,18 +298,18 @@ module Diplomacy
       # check convoy path
       related_convoys = @orders.convoys_for_move(move)
       
-      @@log.debug "Related convoys: #{related_convoys}"
+      @logger.debug "Related convoys: #{related_convoys}"
       
       successful_convoys = related_convoys.reject {|convoy| convoy.failed?}
       
       # see if remaining convoy orders form a path
       ret = check_path_recursive(move, successful_convoys, [move.unit_area])
-      @@log.debug "Convoy succeeds? #{ret}"
+      @logger.debug "Convoy succeeds? #{ret}"
       ret
     end
     
     def check_path_recursive(move, unused_convoys, last_reached_areas)
-      @@log.debug "Unused_convoys: #{unused_convoys}, last_reached_areas: #{last_reached_areas}"
+      @logger.debug "Unused_convoys: #{unused_convoys}, last_reached_areas: #{last_reached_areas}"
       
       last_reached_areas.each do |area|
         # if we have reached some area bordering the target area, there is a valid path
@@ -329,7 +325,7 @@ module Diplomacy
         # delete the corresponding convoys
         unused_convoys.each do |convoy|
           neighbours = @map.neighbours?(area, convoy.unit_area, Area::SEA_BORDER)
-          @@log.debug "Neighbours: #{convoy.unit_area}, #{area}, #{neighbours}"
+          @logger.debug "Neighbours: #{convoy.unit_area}, #{area}, #{neighbours}"
           if @map.neighbours?(area, convoy.unit_area, Area::SEA_BORDER) and (not next_reached_areas.member? convoy.unit_area)
             next_reached_areas << convoy.unit_area
             unused_convoys.delete(convoy)
@@ -337,7 +333,7 @@ module Diplomacy
         end
       end
       
-      @@log.debug "next_reached_areas: #{next_reached_areas}"
+      @logger.debug "next_reached_areas: #{next_reached_areas}"
       
       # areas in next_reached_areas might not be unique
       next_reached_areas.uniq!
@@ -452,7 +448,7 @@ module Diplomacy
     end
     
     def guess_resolve!(loop)
-      @@log.debug "Entered guess_resolve! for loop: #{loop}"
+      @logger.debug "Entered guess_resolve! for loop: #{loop}"
       @loop = true
       return if loop.empty?
       
@@ -461,7 +457,7 @@ module Diplomacy
       head = loop[0]
       tail = loop[1..-1].reverse
       
-      @@log.debug "Guessing negative for #{head.to_s}"
+      @logger.debug "Guessing negative for #{head.to_s}"
       head.guess(Diplomacy::FAILURE)
       tail.each do |order|
         resolve_order!(order)
@@ -469,16 +465,16 @@ module Diplomacy
       
       head.unresolve
       adjudicate!(head)
-      @@log.debug "Guess result: #{head.status_readable}"
+      @logger.debug "Guess result: #{head.status_readable}"
       
-      @@log.debug tail.collect { |order| "#{order.to_s} #{order.status_readable}" }
+      @logger.debug tail.collect { |order| "#{order.to_s} #{order.status_readable}" }
       
       resolutions << (head.resolution == Diplomacy::FAILURE)
       
       # now clear and guess positive
       clear_orders!(tail)
       
-      @@log.debug "Guessing positive for #{head.to_s}"
+      @logger.debug "Guessing positive for #{head.to_s}"
       head.guess(Diplomacy::SUCCESS)
       tail.each do |order|
         resolve_order!(order)
@@ -486,13 +482,13 @@ module Diplomacy
       
       head.unresolve
       adjudicate!(head)
-      @@log.debug "Guess result: #{head.status_readable}"
+      @logger.debug "Guess result: #{head.status_readable}"
       
-      @@log.debug tail.collect { |order| "#{order.to_s} #{order.status_readable}" }
+      @logger.debug tail.collect { |order| "#{order.to_s} #{order.status_readable}" }
       
       resolutions << (head.resolution == Diplomacy::SUCCESS)
       
-      @@log.debug "Guess resolutions: #{resolutions}"
+      @logger.debug "Guess resolutions: #{resolutions}"
       
       clear_orders!(tail)
       
@@ -519,7 +515,7 @@ module Diplomacy
     
     def reconcile!(resolved_orders, invalid_orders)
       resolved_orders.each_index do |index|
-        @@log.debug "ORDER NEVER RESOLVED! (#{resolved_orders[index]})" if resolved_orders[index].unresolved?
+        @logger.debug "ORDER NEVER RESOLVED! (#{resolved_orders[index]})" if resolved_orders[index].unresolved?
         resolved_orders[index] = invalid_orders[index] if invalid_orders[index]
       end
     end
