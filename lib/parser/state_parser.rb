@@ -8,11 +8,13 @@ module Diplomacy
       units_by_power = unitblob.split
       units_by_power.each do |string|
         power, units = string.split(":")
-        unit_array = units.scan(/[AF]\w{3}/)
+        if power and units
+          unit_array = units.scan(/[AF]\w{3}/)
       
-        unit_array.each do |unit|
-          type, area = parse_single_unit(unit)
-          @gamestate[area.to_sym] = AreaState.new(nil, Unit.new(power, unit_type(type)))
+          unit_array.each do |unit|
+            type, area = parse_single_unit(unit)
+            @gamestate[area.to_sym] = AreaState.new(nil, Unit.new(power, unit_type(type)))
+          end
         end
       end
       @gamestate
