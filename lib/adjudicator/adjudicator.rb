@@ -95,8 +95,6 @@ module Diplomacy
       
       return state,@orders.orders
     end
-    
-
 
     def resolve_order!(order)
       if order.resolved?

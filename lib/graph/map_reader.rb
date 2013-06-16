@@ -18,7 +18,6 @@ module Diplomacy
     end
     
     def read_map_file(yaml_file)
-      puts yaml_file
       yamlmaps = YAML::load_file(yaml_file)
       
       yamlmaps.keys.each do |mapname|
