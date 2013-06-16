@@ -184,7 +184,11 @@ module Diplomacy
       @holds = {}
       @supportholds = {}
       @convoys = {}
-      
+ 
+      process_orders(orders)
+    end
+
+    def process_orders(orders)
       # create wrappers and categorize orders
       orders.each do |order|
         case order

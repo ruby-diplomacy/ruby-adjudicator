@@ -79,7 +79,7 @@ module Diplomacy
 
     def resolve!(state, unchecked_orders)
       validator = Validator.new(state, @map, unchecked_orders)
-      @orders,invalid_orders = validator.validate_orders
+      @orders, invalid_orders = validator.validate_orders
       
       @state = state
       @loop_detector = []

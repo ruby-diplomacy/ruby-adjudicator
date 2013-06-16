@@ -1,15 +1,18 @@
-require_relative '../../lib/adjudicator/adjudicator'
+require 'parser/state_parser'
+require 'parser/order_parser'
 
 Given /^current state "([^"]*)"$/ do |currentstate|
-  parse_units(currentstate)
+  sp = Diplomacy::StateParser.new gamestate
+  sp.parse_units(currentstate)
   
   adjudicator.map.areas[:Tri].should_not be_nil
 end
 
 When /^I adjudicate a set of "([^"]*)"$/ do |orderblob|
   # read orders
-  parse_orders(orderblob)
-  
+  op = Diplomacy::OrderParser.new gamestate, orders
+  op.parse_orders(orderblob)
+
   # adjudicate orders
   new_state, @adjudicated_orders = adjudicator.resolve!(gamestate, orders)
 end
