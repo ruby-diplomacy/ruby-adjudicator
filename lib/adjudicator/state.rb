@@ -28,11 +28,10 @@ module Diplomacy
   end
 
   class AreaState
-    attr_accessor :nationality
-    attr_accessor :unit
+    attr_accessor :owner, :unit
 
-    def initialize(nationality = nil, unit = nil)
-      @owner = nationality
+    def initialize(owner = nil, unit = nil)
+      @owner = owner
       @unit = unit
     end
   end
