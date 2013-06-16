@@ -9,7 +9,7 @@ module Diplomacy
   class Validator
     @@log = Logger.new( 'adjudicator.log', 'daily' )
     
-    def initialize(state, map, order_list)
+    def initialize(state, order_list, map = nil)
       @state = state
       @map = map
       @orders = OrderCollection.new(order_list)

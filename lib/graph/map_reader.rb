@@ -1,14 +1,24 @@
 require 'yaml'
+require 'graph/graph'
 
 module Diplomacy
   class MapReader
     attr_accessor :maps
     
-    def initialize
+    def initialize(map_path = nil)
       @maps = {}
+
+      map_path ||= File.expand_path('../maps/', File.dirname(__FILE__))
+
+      Dir.chdir map_path do
+        Dir.glob "*.yaml" do |mapfile|
+          read_map_file(mapfile)
+        end
+      end
     end
     
     def read_map_file(yaml_file)
+      puts yaml_file
       yamlmaps = YAML::load_file(yaml_file)
       
       yamlmaps.keys.each do |mapname|

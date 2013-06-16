@@ -6,6 +6,5 @@ Gem::Specification.new do |s|
   s.description = "A Diplomacy adjudicator written in ruby."
   s.authors     = ["NamelessOne"]
   s.email       = "unfortunate42@gmail.com"
-  s.files       = Dir["{lib}/**/*.rb", "bin/*", "LICENSE", "*.md"]
-  s.require_paths << 'lib/adjudicator'
+  s.files       = Dir["{lib}/ruby-adjidicator.rb", "{lib}/**/*.rb", "{lib}/maps/*.yaml", "bin/*", "LICENSE", "*.md"]
 end
