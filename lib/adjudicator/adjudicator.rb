@@ -1,7 +1,5 @@
 require_relative 'orders'
-require_relative 'state'
 require_relative 'backup_rule'
-require_relative '../graph/graph'
 
 module Diplomacy
   class Validator
@@ -68,14 +66,15 @@ module Diplomacy
     attr_accessor :orders
     attr_accessor :map
     
-    def initialize(map, backup_rule=nil)
+    def initialize(map = nil, backup_rule=nil)
       @logger = Diplomacy.logger
-      @map = map
-      if backup_rule
-        @backup_rule = backup_rule
+      if map
+        @map = map
       else
-        @backup_rule = BackupRule.new(:simple_circular, :convoy_paradox)
+        mr = MapReader.new
+        @map = mr.maps['Standard']
       end
+      @backup_rule = backup_rule || BackupRule.new(:simple_circular, :convoy_paradox)
     end
 
     def resolve!(state, unchecked_orders)
