@@ -3,7 +3,7 @@ require_relative 'backup_rule'
 
 module Diplomacy
   class Validator
-    def initialize(state, order_list, map = nil)
+    def initialize(state, map, order_list)
       @logger = Diplomacy.logger
       @state = state
       @map = map
@@ -152,7 +152,7 @@ module Diplomacy
         # get the move leaving from the destination - can only be one or zero
         dep_move = @orders.moves_by_origin(order.dst)
         
-        if dep_move.present?
+        unless dep_move.nil?
           # check if either move convoyed - in that case there is no head to head
           not_convoyed = @orders.convoys_for_move(dep_move).empty? || @orders.convoys_for_move(order).empty?
 		  @logger.debug "#{dep_move}, convoyed: #{!not_convoyed}"
