@@ -1,11 +1,13 @@
 require 'yaml'
 require 'graph/graph'
+require 'parser/state_parser'
 
 module Diplomacy
   class MapReader
     attr_accessor :maps
     
     def initialize(map_path = nil)
+      @logger = Diplomacy.logger
       @maps = {}
 
       map_path ||= File.expand_path('../maps/', File.dirname(__FILE__))
@@ -36,6 +38,24 @@ module Diplomacy
             map.add_border(border[0].to_sym, border[1].to_sym, Area::SEA_BORDER)
           end
         end
+
+        yamlmap['SCs'].each do |sc|
+          map.add_supply_center(sc)
+        end
+	
+      	yamlmap['Powers'].each do |power, starting_state|
+          sp = StateParser.new
+          gamestate = sp.parse_units_of_power starting_state[0], power # the first entry contains the power's units
+
+          starting_state[1..-1].each do |area| # the rest are single areas belonging to their state
+            @logger.debug "Adding #{area} for #{power}"
+            gamestate[area] = AreaState.new power
+          end
+
+          map.add_power(power, gamestate)
+      	end
+
+        @logger.debug "Parsed map #{mapname}: #{map}"
         
         @maps[mapname] = map
       end

@@ -34,6 +34,13 @@ module Diplomacy
       @owner = owner
       @unit = unit
     end
+
+    def to_s
+      out = ""
+      out << "#{@owner}"
+      out << ", #{@unit.type_to_s} (#{@unit.nationality})" if @unit
+      out
+    end
   end
 
   class GameState < Hash

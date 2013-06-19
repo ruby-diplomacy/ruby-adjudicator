@@ -8,11 +8,12 @@ module Diplomacy
     attr_accessor :supply_center
     attr_accessor :coasts
 
-    def initialize(name, abbrv)
+    def initialize(name, abbrv, supply_center = false)
       @name = name
       @abbrv = abbrv
       @borders = {LAND_BORDER => [], SEA_BORDER => []}
       @coasts = []
+      @supply_center = supply_center
     end
 
     def add_border(area, border_type)
@@ -37,9 +38,14 @@ module Diplomacy
   end
 
   class Map
-    attr_accessor :areas
+    attr_accessor :areas, :powers
     def initialize
       @areas = {}
+      @powers = {}
+    end
+
+    def add_power(name, starting_areas)
+      @powers[name] = starting_areas
     end
 
     def add_border_by_object(area1, area2, type)
@@ -53,6 +59,27 @@ module Diplomacy
     
     def neighbours?(area1, area2, type)
       @areas[area1].borders[type].member? @areas[area2]
+    end
+
+    def supply_centers
+      @areas.select {|area| area.is_supply? }
+    end
+
+    def add_supply_center(abbr)
+      @areas[abbr.to_sym].supply_center = true
+    end
+
+    def to_s
+      out = ["Areas:"]
+      @areas.each do |abbrv, area|
+        out << area.to_s
+      end
+      out << "Powers:"
+      @powers.each do |power, starting_state|
+      	out << "#{power}:"
+	out << starting_state
+      end
+      out.join "\n"
     end
   end
 end

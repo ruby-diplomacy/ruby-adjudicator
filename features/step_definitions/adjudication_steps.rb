@@ -3,7 +3,7 @@ require 'parser/order_parser'
 
 Given /^current state "([^"]*)"$/ do |currentstate|
   sp = Diplomacy::StateParser.new gamestate
-  sp.parse_units(currentstate)
+  sp.parse_units_by_power(currentstate)
   
   adjudicator.map.areas[:Tri].should_not be_nil
 end

@@ -341,3 +341,38 @@ Standard:
     - Lon
     - Liv
     - Edi
+  Powers:
+    Russia:
+      - FStP,AMos,FSev,AWar
+      - Ukr
+      - Lvn
+      - Fin
+    Turkey:
+      - FAnk,ASmy,ACon
+      - Syr
+      - Arm
+    Austria:
+      - ABud,AVie,FTri
+      - Tyr
+      - Boh
+      - Gal
+    Italy:
+      - FNap,ARom,AVen
+      - Pie
+      - Tus
+      - Apu
+    France:
+      - APar,AMar,FBre
+      - Gas
+      - Pic
+      - Bur
+    England:
+      - FLon,ALiv,FEdi
+      - Cly
+      - Yor
+      - Wal
+    Germany:
+      - ABer,AMun,FKie
+      - Ruh
+      - Pru
+      - Sil
