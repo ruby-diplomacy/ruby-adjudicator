@@ -69,6 +69,17 @@ module Diplomacy
       @areas[abbr.to_sym].supply_center = true
     end
 
+    def starting_state
+      gs = GameState.new
+      @areas.each do |area|
+        gs[area] = AreaState.new
+      end
+      @powers.each_value do |power_gamestate|
+        gs.merge! power_gamestate
+      end
+      gs
+    end
+
     def to_s
       out = ["Areas:"]
       @areas.each do |abbrv, area|

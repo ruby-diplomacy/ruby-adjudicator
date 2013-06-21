@@ -45,7 +45,7 @@ module Diplomacy
 	
       	yamlmap['Powers'].each do |power, starting_state|
           sp = StateParser.new
-          gamestate = sp.parse_units_of_power starting_state[0], power # the first entry contains the power's units
+          gamestate = sp.parse_power_state starting_state[0], power # the first entry contains the power's units
 
           starting_state[1..-1].each do |area| # the rest are single areas belonging to their state
             @logger.debug "Adding #{area} for #{power}"
