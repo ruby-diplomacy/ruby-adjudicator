@@ -16,24 +16,39 @@ module Diplomacy
     end
 
     def parse_power_state(blob, power)
-      #area_state_array = blob.scan(/[AF]\w{3}/)
-      area_state_array = blob.split %r{,\s*}
-  
-      area_state_array.each do |area_state_blob|
-        area, area_state = parse_area_state(area_state_blob, power)
-        area_state.owner = power
-        @gamestate[area.to_sym] = area_state
+      unit_array, area_state_array = blob.split "|"
+
+      unless unit_array.nil? or unit_array.empty?
+        unit_array = unit_array.split %r{,\s*}
+        unit_array.each do |unit_blob|
+          area, unit = parse_unit(unit_blob, power)
+          @gamestate[area.to_sym] = unit
+        end
+      end
+
+      unless area_state_array.nil? or area_state_array.empty?
+        area_state_array = area_state_array.split %r{,\s*}
+        area_state_array.each do |area_state_blob|
+          area, area_state = parse_area_state(area_state_blob, power)
+
+          if @gamestate.has_key? area.to_sym
+            @gamestate[area.to_sym].owner = area_state.owner
+          else
+            @gamestate[area.to_sym] = area_state
+          end
+        end
       end
       @gamestate
     end
 
+    def parse_unit(blob, power)
+      m = /([AF])(\w{3})/.match(blob)
+      return m[2], AreaState.new(nil, Unit.new( power, unit_type(m[1])))
+    end
+
     def parse_area_state(blob, power)
-      m = /([AF])?(\w{3})/.match(blob)
-      unit = nil
-      if m[1]
-        unit = Unit.new power, unit_type(m[1])
-      end
-      return m[2], AreaState.new(nil, unit)
+      m = /(\w{3})/.match(blob)
+      return m[1], AreaState.new(power, nil)
     end
 
     def unit_type(abbrv)
@@ -45,26 +60,42 @@ module Diplomacy
       output = []
       powers = {}
       @gamestate.each do |area, area_state|
-        (powers[area_state.unit.nationality] ||= Hash.new )[area] = area_state if not area_state.unit.nil?
+        unless area_state.unit.nil?
+          nationality = area_state.unit.nationality
+          (powers[nationality] ||= Hash.new )['units'] = {}
+          powers[nationality]['units'][area] = area_state.unit
+        end
+        unless area_state.owner.nil?
+          (powers[area_state.owner] ||= Hash.new )['areas'] = []
+          powers[area_state.owner]['areas'] << area
+        end
       end
-      powers.each do |power, area_states|
-        output << dump_power(power, area_states)
+      powers.each do |power, state|
+        output << dump_power(power, state)
       end
       output.join " "
     end
 
-    def dump_power(power, area_states)
-      return "" if area_states.empty?
+    def dump_power(power, state)
+      return "" if state.empty? # avoid Power: output
+
       output = "#{power}:"
+      dumped_units = []
       dumped_areas = []
-      area_states.each do |area, area_state|
-        dumped_areas << dump_area_state(area, area_state)
+
+      state['units'].each do |area, unit|
+        dumped_units << dump_unit(area, unit)
       end
-      output << dumped_areas.join(",")
+
+      output << dumped_units.join(",")
+
+      output << "|" unless state['areas'].empty?
+
+      output << state['areas'].join(",")
     end
 
-    def dump_area_state(area, area_state)
-      "#{area_state.unit.type_to_s}#{area}"
+    def dump_unit(area, unit)
+      "#{unit.type_to_s}#{area}"
     end
   end
 end

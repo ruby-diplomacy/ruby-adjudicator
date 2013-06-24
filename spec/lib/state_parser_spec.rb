@@ -5,7 +5,7 @@ module Diplomacy
     context "the French starting position" do
       before :each do
         @sp = StateParser.new
-        blob = "France:APar,FBre,AMar,Gas,Pic,Bur"
+        blob = "France:APar,FBre,AMar|Par,Bre,Mar,Pic,Bur,Gas"
         @gamestate = @sp.parse_state blob
       end
 
@@ -37,7 +37,7 @@ module Diplomacy
     context "I'm sorry Austria, you are fucked" do
       before :each do
         @sp = StateParser.new
-        blob = "Italy:ATyr,AVen,FIon,Apu,Tus,Pie,Rom,Nap Austria:FAlb,ASer,ABud,Boh,Gal,Vie,Tri,Tyr"
+        blob = "Italy:ATyr,AVen,FIon|Ven,Apu,Tus,Pie,Rom,Nap Austria:FAlb,ASer,ABud|Bud,Boh,Gal,Vie,Tri,Tyr"
         @gamestate = @sp.parse_state blob
       end
 
