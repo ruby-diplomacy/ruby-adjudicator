@@ -62,12 +62,17 @@ module Diplomacy
       @gamestate.each do |area, area_state|
         unless area_state.unit.nil?
           nationality = area_state.unit.nationality
-          (powers[nationality] ||= Hash.new )['units'] = {}
-          powers[nationality]['units'][area] = area_state.unit
+
+          unless powers.has_key? nationality
+            powers[nationality] = { units: {}, areas: [] }
+          end
+          powers[nationality][:units][area] = area_state.unit
         end
         unless area_state.owner.nil?
-          (powers[area_state.owner] ||= Hash.new )['areas'] = []
-          powers[area_state.owner]['areas'] << area
+          unless powers.has_key? area_state.owner
+            powers[area_state.owner] = { units: {}, areas: [] }
+          end
+          powers[area_state.owner][:areas] << area
         end
       end
       powers.each do |power, state|
@@ -83,15 +88,15 @@ module Diplomacy
       dumped_units = []
       dumped_areas = []
 
-      state['units'].each do |area, unit|
+      state[:units].each do |area, unit|
         dumped_units << dump_unit(area, unit)
       end
 
       output << dumped_units.join(",")
 
-      output << "|" unless state['areas'].empty?
+      output << "|" unless state[:areas].empty?
 
-      output << state['areas'].join(",")
+      output << state[:areas].join(",")
     end
 
     def dump_unit(area, unit)
