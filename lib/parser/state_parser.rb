@@ -5,6 +5,7 @@ module Diplomacy
     end
 
     def parse_state(blob)
+      @gamestate = GameState.new
       state_by_power = blob.split
       state_by_power.each do |string|
         power, state = string.split(":")

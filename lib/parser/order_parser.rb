@@ -1,11 +1,12 @@
 module Diplomacy
   class OrderParser
-    def initialize(gamestate, orders)
+    def initialize(gamestate, orders=nil)
       @gamestate = gamestate || GameState.new
       @orders = orders || []
     end
 
     def parse_orders(orderblob)
+      @orders.clear
       order_list = orderblob.split(',')
       
       order_list.each do |order_text|
