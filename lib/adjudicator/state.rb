@@ -70,7 +70,9 @@ module Diplomacy
     def apply_orders!(orders)
       orders.each do |order|
         if Move === order && order.succeeded?
-          @retreats[order.dst] = area_unit(order.dst)
+          if (dislodged_unit = area_unit(order.dst))
+            @retreats[order.dst] = area_unit(order.dst)
+          end
           
           set_area_unit(order.dst, area_unit(order.unit_area))
           set_area_unit(order.unit_area, nil)
