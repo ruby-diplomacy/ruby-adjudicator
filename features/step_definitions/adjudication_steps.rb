@@ -2,19 +2,27 @@ require 'parser/state_parser'
 require 'parser/order_parser'
 
 Given /^current state "([^"]*)"$/ do |currentstate|
-  sp = Diplomacy::StateParser.new gamestate
-  sp.parse_state(currentstate)
+  sp = Diplomacy::StateParser.new
+  @gamestate = sp.parse_state(currentstate)
   
   adjudicator.map.areas[:Tri].should_not be_nil
 end
 
 When /^I adjudicate a set of "([^"]*)"$/ do |orderblob|
   # read orders
-  op = Diplomacy::OrderParser.new gamestate, orders
-  op.parse_orders(orderblob)
+  op = Diplomacy::OrderParser.new @gamestate
 
   # adjudicate orders
-  new_state, @adjudicated_orders = adjudicator.resolve!(gamestate, orders)
+  new_state, @adjudicated_orders = adjudicator.resolve!(@gamestate, op.parse_orders(orderblob))
+end
+
+When /^I adjudicate retreats "([^"]*)"$/ do |orderblob|
+  # read retreats
+  op = Diplomacy::OrderParser.new @gamestate, retreats
+  op.parse_retreats(orderblob)
+
+  # adjudicate orders
+  new_state, @adjudicated_orders = adjudicator.resolve_retreats!(@gamestate, retreats)
 end
 
 Then /^the "([^"]*)" should be correct\.$/ do |adjudication|

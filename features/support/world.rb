@@ -6,10 +6,6 @@ module DiplomacyWorld
     @adjudicator
   end
   
-  def gamestate
-    @gamestate ||= Diplomacy::GameState.new
-  end
-  
   def orders
     @orders ||= []
   end
