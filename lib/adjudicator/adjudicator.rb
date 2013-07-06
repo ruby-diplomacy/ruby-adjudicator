@@ -49,6 +49,8 @@ module Diplomacy
         m.unit_area_coast = order.src_coast
         m.dst_coast = order.dst_coast
         return false unless valid_order?(m)
+      when Retreat
+        return valid_move?(order)
       end
       true
     end
@@ -509,7 +511,26 @@ module Diplomacy
         order.unresolve
       end
     end
-    
+
+    def resolve_retreats!(state, unchecked_retreats)
+      validator = Validator.new(state, @map, unchecked_retreats)
+      @retreats, invalid_retreats = validator.validate_orders
+
+      @retreats.retreats.each do |area, retreats|
+        if retreats.length == 1
+          retreats[0].succeed
+        else
+          retreats.each {|r| r.fail }
+        end
+      end
+
+      reconcile!(@retreats.orders, invalid_retreats)
+
+      state.apply_retreats! @retreats.orders
+
+      return state, @retreats.orders
+    end
+
     def reconcile!(resolved_orders, invalid_orders)
       resolved_orders.each_index do |index|
         @logger.debug "ORDER NEVER RESOLVED! (#{resolved_orders[index]})" if resolved_orders[index].unresolved?

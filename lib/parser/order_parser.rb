@@ -61,5 +61,27 @@ module Diplomacy
         return Convoy.new(unit, unit_area.to_sym, src.to_sym, dst.to_sym)
       end
     end
+
+    def parse_retreats(orderblob)
+      @orders.clear
+      order_list = orderblob.split(',')
+
+      order_list.each do |order_text|
+        @orders << parse_single_retreat(order_text)
+      end
+      @orders
+    end
+
+    def parse_single_retreat(orderblob)
+      # try to parse it as a move
+      /^[AF](?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?-(?'dst'\w{3})(?'dst_coast'[^-]+)?$/ =~ orderblob
+      if not unit_area.nil?
+        unit = @gamestate[unit_area.to_sym].unit unless unit_area.nil?
+        retreat = Retreat.new(unit, unit_area.to_sym, dst.to_sym)
+        retreat.unit_area_coast = unit_area_coast if not unit_area_coast.nil?
+        retreat.dst_coast = dst_coast if not dst_coast.nil?
+        return retreat
+      end
+    end
   end
 end

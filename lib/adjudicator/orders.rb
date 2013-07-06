@@ -168,7 +168,17 @@ module Diplomacy
       "#{prefix} C #{@src} -> #{@dst}"
     end
   end
-  
+
+  class Retreat < GenericOrder
+    def initialize(unit, unit_area, dst)
+      super(unit, unit_area, dst)
+    end
+
+    def to_s
+      "R #{prefix} -> #{@dst}"
+    end
+  end
+
   class OrderCollection
     attr_accessor :orders
     attr_accessor :moves
@@ -176,6 +186,7 @@ module Diplomacy
     attr_accessor :supportholds
     attr_accessor :holds
     attr_accessor :convoys
+    attr_accessor :retreats
     
     def initialize(orders)
       @orders = []
@@ -184,6 +195,7 @@ module Diplomacy
       @holds = {}
       @supportholds = {}
       @convoys = {}
+      @retreats = {}
  
       process_orders(orders)
     end
@@ -202,6 +214,8 @@ module Diplomacy
           (self.supportholds[order.dst] ||= Array.new) << order
         when Convoy
           (self.convoys[order.dst] ||= Array.new) << order
+        when Retreat
+          (self.retreats[order.dst] ||= Array.new) << order
         end
         @orders << order
       end

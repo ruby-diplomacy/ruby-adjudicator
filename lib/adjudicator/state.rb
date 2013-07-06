@@ -79,5 +79,12 @@ module Diplomacy
         end
       end
     end
+
+    def apply_retreats!(retreats)
+      retreats.each do |r|
+        set_area_unit(r.dst, area_unit(r.unit_area)) if r.succeeded?
+        # do nothing about the failed ones, they will be discarded
+      end
+    end
   end
 end

@@ -5,7 +5,7 @@ Feature: adjudicator resolves orders
 
   Scenario Outline: Test case outline
     Given current state "<currentstate>"
-    When I adjudicate a set of "<orders>"
+    When I adjudicate a set of orders "<orders>"
     Then the "<adjudication>" should be correct. 
     
   Scenarios: Simple Tests
@@ -118,3 +118,13 @@ Feature: adjudicator resolves orders
     | Eng:FLon,FWal Fra:ABre,FEng | FLonSFWal-Eng,FWal-Eng,ABre-Lon,FEngCABre-Lon | SSFF |
     | Eng:FLon,FWal Fra:ABre,FEng Ita:FIri,FMAO,ANAf | FLonSFWal-Eng,FWal-Eng,ABre-Lon,FEngCABre-Lon,FIriCANAf-Wal,FMAOCANAf-Wal,ANAf-Wal | SSFFSSS |
     | Eng:FLon,FWal Fra:ABre,FEng Ger:FNth,FBel | FLonSFWal-Eng,FWal-Eng,ABre-Lon,FEngCABre-Lon,FNthSFBel-Eng,FBel-Eng | SFFSSF |
+
+  Scenario Outline: Retreat tests
+    Given current state "<currentstate>"
+    When I adjudicate a set of orders "<orders>"
+    And I adjudicate a set of retreats "<retreats>"
+    Then the "<adjudication>" should be correct.
+
+  Scenarios: Simple retreats
+    | currentstate | orders | retreats | adjudication |
+    | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur-Mun | S |
