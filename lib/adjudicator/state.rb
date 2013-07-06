@@ -86,5 +86,11 @@ module Diplomacy
         # do nothing about the failed ones, they will be discarded
       end
     end
+
+    def apply_builds!(builds)
+      builds.each do |b|
+        set_area_unit(b.unit_area, b.build ? b.unit : nil) if b.succeeded?
+      end
+    end
   end
 end

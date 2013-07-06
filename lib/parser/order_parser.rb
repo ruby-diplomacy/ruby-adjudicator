@@ -83,5 +83,30 @@ module Diplomacy
         return retreat
       end
     end
+
+    def parse_builds(orderblob)
+      @orders.clear
+      order_list = orderblob.split(',')
+
+      order_list.each do |order_text|
+        @orders << parse_single_build(order_text)
+      end
+      @orders
+    end
+
+    def parse_single_build(orderblob)
+      /^(?'unit_type'[AF])(?'unit_area'\w{3})(?'build'[BD])$/ =~ orderblob
+      if not unit_area.nil?
+      	is_build = (build == 'B')
+        is_army = (unit_type == 'A')
+      	if is_build
+          unit = Unit.new @gamestate[unit_area.to_sym].owner, (is_army ? Unit::ARMY : Unit::FLEET)
+        else
+          unit = @gamestate[unit_area.to_sym].unit
+        end
+
+        return Build.new(unit, unit_area.to_sym, is_build)
+      end
+    end
   end
 end

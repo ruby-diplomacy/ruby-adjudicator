@@ -125,9 +125,22 @@ Feature: adjudicator resolves orders
     And I adjudicate a set of retreats "<retreats>"
     Then the "<adjudication>" should be correct.
 
-  Scenarios: Simple retreats
+  Scenarios: Retreats
     | currentstate | orders | retreats | adjudication |
     | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur-Mun | S |
     | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur-Kie | I |
     | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur-Mun,ABer-Mun | FF |
     | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur-Mun,ABer-Kie | SS |
+
+  Scenario Outline: Build tests
+    Given current state "<currentstate>"
+    When I adjudicate a set of builds "<builds>"
+    Then the "<adjudication>" should be correct.
+
+  Scenarios: Builds
+    | currentstate | builds | adjudication |
+    | Fra:\|Par | AParB | S |
+    | Fra:APar\|Par | AParB | I |
+    | Fra:\|Par | FParB | I |
+    | Fra:APar\|Par | AParD | S |
+    | Fra:APar\|Par | ABurD | I |

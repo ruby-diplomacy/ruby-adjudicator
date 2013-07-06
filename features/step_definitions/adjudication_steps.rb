@@ -8,7 +8,7 @@ Given /^current state "([^"]*)"$/ do |currentstate|
   adjudicator.map.areas[:Tri].should_not be_nil
 end
 
-When /^I adjudicate a set of (retreats|orders)? "([^"]*)"$/ do |type, orderblob|
+When /^I adjudicate a set of (retreats|orders|builds)? "([^"]*)"$/ do |type, orderblob|
   # read orders
   op = Diplomacy::OrderParser.new @gamestate
 
@@ -18,6 +18,8 @@ When /^I adjudicate a set of (retreats|orders)? "([^"]*)"$/ do |type, orderblob|
     new_state, @adjudicated_orders = adjudicator.resolve!(@gamestate, op.parse_orders(orderblob))
   when 'retreats'
     new_state, @adjudicated_orders = adjudicator.resolve_retreats!(@gamestate, op.parse_retreats(orderblob))
+  when 'builds'
+    new_state, @adjudicated_orders = adjudicator.resolve_builds!(@gamestate, op.parse_builds(orderblob))
   end
 end
 

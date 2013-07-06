@@ -11,12 +11,15 @@ module Diplomacy
       @invalid_orders = []
     end
     
-    def validate_orders
+    def validate_orders(substitute_holds=true)
       @orders.each do |order|
         order.invalidate unless valid_order?(order)
         @logger.debug "Decided: #{order.status_readable}"
       end
-      sanitized_orders = @orders.orders.collect {|order| order.invalid? ? Hold.new(order.unit, order.unit_area) : order}
+      sanitized_orders = @orders.orders.collect do |order|
+        substitute = substitute_holds ? Hold.new(order.unit, order.unit_area) : nil
+        order.invalid? ? substitute : order
+      end
       invalid_orders = @orders.orders.collect {|order| order.invalid? ? order : nil }
       
       return OrderCollection.new(sanitized_orders), invalid_orders
@@ -51,6 +54,18 @@ module Diplomacy
         return false unless valid_order?(m)
       when Retreat
         return valid_move?(order)
+      when Build
+        area = @map.areas[order.unit_area]
+        if order.build
+          return (
+            @state[order.unit_area].unit.nil? and (
+              (order.unit.is_army? and area.is_land?) or
+              (order.unit.is_fleet? and area.is_coastal?)
+            )
+          )
+        else # disband
+          return (not @state[order.unit_area].unit.nil?)
+        end
       end
       true
     end
@@ -514,7 +529,7 @@ module Diplomacy
 
     def resolve_retreats!(state, unchecked_retreats)
       validator = Validator.new(state, @map, unchecked_retreats)
-      @retreats, invalid_retreats = validator.validate_orders
+      @retreats, invalid_retreats = validator.validate_orders(false)
 
       @retreats.retreats.each do |area, retreats|
         if retreats.length == 1
@@ -531,9 +546,24 @@ module Diplomacy
       return state, @retreats.orders
     end
 
+    def resolve_builds!(state, unchecked_builds)
+      validator = Validator.new(state, @map, unchecked_builds)
+      @builds, invalid_builds = validator.validate_orders(false)
+
+      @builds.orders.each {|build| build.succeed unless build.nil? }
+
+      reconcile!(@builds.orders, invalid_builds)
+
+      state.apply_builds! @builds.orders
+
+      return state, @builds.orders
+    end
+
     def reconcile!(resolved_orders, invalid_orders)
       resolved_orders.each_index do |index|
-        @logger.debug "ORDER NEVER RESOLVED! (#{resolved_orders[index]})" if resolved_orders[index].unresolved?
+        if (not resolved_orders[index].nil?) and resolved_orders[index].unresolved?
+          @logger.warn "ORDER NEVER RESOLVED! (#{resolved_orders[index]})"
+        end
         resolved_orders[index] = invalid_orders[index] if invalid_orders[index]
       end
     end

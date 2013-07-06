@@ -20,16 +20,24 @@ module Diplomacy
       (borders[border_type] ||= Set.new) << area
     end
     
+    def is_land?
+      not @borders[LAND_BORDER].empty?
+    end
+
+    def is_sea?
+      not self.is_land?
+    end
+
     def is_supply?
       @supply_center
     end
     
     def is_inland?
-      !@borders[LAND_BORDER].empty? && @borders[SEA_BORDER].empty?
+      (not @borders[LAND_BORDER].empty?) && @borders[SEA_BORDER].empty?
     end
     
     def is_coastal?
-      !@borders[LAND_BORDER].empty? && !@borders[SEA_BORDER].empty?
+      not (@borders[LAND_BORDER].empty? or @borders[SEA_BORDER].empty?)
     end
     
     def to_s

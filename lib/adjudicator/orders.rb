@@ -118,7 +118,7 @@ module Diplomacy
     end
     
     def prefix
-      "#{@unit.type_to_s} #{unit_area.to_s}"
+      "#{@unit.nil? ? 'X' : @unit.type_to_s} #{unit_area.to_s}"
     end
   end
 
@@ -179,6 +179,18 @@ module Diplomacy
     end
   end
 
+  class Build < GenericOrder
+    attr_accessor :build
+    def initialize(unit, unit_area, build=true)
+      super(unit, unit_area, nil)
+      @build = build
+    end
+
+    def to_s
+      "#{@build ? 'B' : 'D'} #{prefix}"
+    end
+  end
+
   class OrderCollection
     attr_accessor :orders
     attr_accessor :moves
@@ -187,6 +199,7 @@ module Diplomacy
     attr_accessor :holds
     attr_accessor :convoys
     attr_accessor :retreats
+    attr_accessor :builds
     
     def initialize(orders)
       @orders = []
@@ -196,6 +209,7 @@ module Diplomacy
       @supportholds = {}
       @convoys = {}
       @retreats = {}
+      @builds = {}
  
       process_orders(orders)
     end
@@ -216,6 +230,8 @@ module Diplomacy
           (self.convoys[order.dst] ||= Array.new) << order
         when Retreat
           (self.retreats[order.dst] ||= Array.new) << order
+        when Build
+          (self.builds[order.unit_area] ||= Array.new) << order
         end
         @orders << order
       end
