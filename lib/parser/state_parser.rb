@@ -43,8 +43,8 @@ module Diplomacy
     end
 
     def parse_unit(blob, power)
-      m = /([AF])(\w{3})/.match(blob)
-      return m[2], AreaState.new(nil, Unit.new( power, unit_type(m[1])))
+      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?/.match(blob)
+      return "#{m['unit_area']}#{m['unit_area_coast']}", AreaState.new(nil, Unit.new( power, unit_type(m['unit_type'])))
     end
 
     def parse_area_state(blob, power)
@@ -73,7 +73,7 @@ module Diplomacy
           unless powers.has_key? area_state.owner
             powers[area_state.owner] = { units: {}, areas: [] }
           end
-          powers[area_state.owner][:areas] << area
+          powers[area_state.owner][:areas] << strip_coast(area)
         end
       end
       powers.each do |power, state|
@@ -102,6 +102,11 @@ module Diplomacy
 
     def dump_unit(area, unit)
       "#{unit.type_to_s}#{area}"
+    end
+
+    def strip_coast(area)
+      m = /^(?'abbrv'[^(]+)(\((?'coast'.+)\))?$/.match area
+      m['abbrv']
     end
   end
 end

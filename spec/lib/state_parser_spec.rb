@@ -65,7 +65,17 @@ module Diplomacy
     end
 
     describe "dumping" do
-      # TODO add some tests!
+      it "dumps correctly the French starting position" do
+        gamestate = GameState.new
+        gamestate[:Par] = AreaState.new("France", Unit.new("France", Unit::ARMY))
+        gamestate[:Bre] = AreaState.new("France", Unit.new("France", Unit::FLEET))
+        gamestate[:Mar] = AreaState.new("France", Unit.new("France", Unit::ARMY))
+        gamestate[:Pic] = AreaState.new("France")
+        gamestate[:Bur] = AreaState.new("France")
+        gamestate[:Gas] = AreaState.new("France")
+        sp = StateParser.new gamestate
+        sp.dump_state.should eq("France:APar,FBre,AMar|Par,Bre,Mar,Pic,Bur,Gas")
+      end
     end
   end
 end

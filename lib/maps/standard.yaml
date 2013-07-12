@@ -343,7 +343,7 @@ Standard:
     - Edi
   Powers:
     Russia:
-      - FStP,AMos,FSev,AWar
+      - FStP(sc),AMos,FSev,AWar
       - Ukr
       - Lvn
       - Fin

@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name        = "ruby-adjudicator"
-  s.version     = "0.4.0"
-  s.date        = "2013-07-07"
+  s.version     = "0.4.1"
+  s.date        = "2013-07-12"
   s.summary     = "Diplomacy adjudicator"
   s.description = "A Diplomacy adjudicator written in ruby."
   s.authors     = ["NamelessOne"]
