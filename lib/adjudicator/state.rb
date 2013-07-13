@@ -47,15 +47,15 @@ module Diplomacy
     attr_accessor :retreats
     
     def initialize
-      self.default = AreaState.new
+      self.default_proc = proc {|this_hash, nonexistent_key| this_hash[nonexistent_key] = AreaState.new }
       self.retreats = {}
     end
     
     def area_state(area)
       if Area === area
-        self[area.abbrv]
+        self[area.abbrv] || (self[area.abbrv] = AreaState.new)
       elsif Symbol === area
-        return self[area]
+        self[area] || (self[area] = AreaState.new)
       end
     end
     
@@ -67,7 +67,7 @@ module Diplomacy
       area_state(area).unit = unit
     end
     
-    def apply_orders!(orders)
+    def apply_orders!(orders, adjust=false)
       orders.each do |order|
         if Move === order && order.succeeded?
           if (dislodged_unit = area_unit(order.dst))
@@ -76,14 +76,18 @@ module Diplomacy
           
           set_area_unit(order.dst, area_unit(order.unit_area))
           set_area_unit(order.unit_area, nil)
+          
+          self[order.dst].owner = order.unit.nationality if adjust
         end
       end
     end
 
-    def apply_retreats!(retreats)
+    def apply_retreats!(retreats, adjust=false)
       retreats.each do |r|
-        set_area_unit(r.dst, area_unit(r.unit_area)) if r.succeeded?
+        set_area_unit(r.dst, self.retreats[r.unit_area]) if r.succeeded?
         # do nothing about the failed ones, they will be discarded
+
+        self[r.dst].owner = r.unit.nationality if adjust
       end
     end
 
