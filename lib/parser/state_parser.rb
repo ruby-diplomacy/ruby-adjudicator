@@ -23,7 +23,7 @@ module Diplomacy
         unit_array = unit_array.split %r{,\s*}
         unit_array.each do |unit_blob|
           area, unit = parse_unit(unit_blob, power)
-          @gamestate[area.to_sym] = unit
+          @gamestate[area] = unit
         end
       end
 
@@ -43,13 +43,13 @@ module Diplomacy
     end
 
     def parse_unit(blob, power)
-      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?/.match(blob)
-      return "#{m['unit_area']}#{m['unit_area_coast']}", AreaState.new(nil, Unit.new( power, unit_type(m['unit_type'])))
+      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(\((?'unit_area_coast'.+?)\))?/.match(blob)
+      return :"#{m['unit_area']}", AreaState.new(nil, Unit.new( power.to_sym, unit_type(m['unit_type'])), m['unit_area_coast'])
     end
 
     def parse_area_state(blob, power)
       m = /(\w{3})/.match(blob)
-      return m[1], AreaState.new(power, nil)
+      return m[1], AreaState.new(power.to_sym, nil)
     end
 
     def unit_type(abbrv)
@@ -67,13 +67,14 @@ module Diplomacy
           unless powers.has_key? nationality
             powers[nationality] = { units: {}, areas: [] }
           end
-          powers[nationality][:units][area] = area_state.unit
+          full_area = :"#{area}#{ area_state.coast.nil? ? "" : "(#{area_state.coast})"}"
+          powers[nationality][:units][full_area] = area_state.unit
         end
         unless area_state.owner.nil?
           unless powers.has_key? area_state.owner
             powers[area_state.owner] = { units: {}, areas: [] }
           end
-          powers[area_state.owner][:areas] << strip_coast(area)
+          powers[area_state.owner][:areas] << area
         end
       end
       powers.each do |power, state|
@@ -102,11 +103,6 @@ module Diplomacy
 
     def dump_unit(area, unit)
       "#{unit.type_to_s}#{area}"
-    end
-
-    def strip_coast(area)
-      m = /^(?'abbrv'[^(]+)(\((?'coast'.+)\))?$/.match area
-      m['abbrv']
     end
   end
 end

@@ -47,11 +47,11 @@ module Diplomacy
           sp = StateParser.new
           gamestate = sp.parse_power_state starting_state[0], power # the first entry contains the power's units
 
-          gamestate.each_value { |area_state| area_state.owner = power } # powers controls all starting units' areas
+          gamestate.each_value { |area_state| area_state.owner = power.to_sym } # powers controls all starting units' areas
 
           starting_state[1..-1].each do |area| # the rest are single areas belonging to their state
             @logger.debug "Adding #{area} for #{power}"
-            gamestate[area.to_sym] = AreaState.new power
+            gamestate[area.to_sym] = AreaState.new power.to_sym
           end
 
           map.add_power(power, gamestate)

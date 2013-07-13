@@ -25,21 +25,30 @@ module Diplomacy
       return "F" if is_fleet?
       return "Unknown"
     end
+
+    def ==(other)
+      return (@nationality == other.nationality and @type == other.type)
+    end
   end
 
   class AreaState
-    attr_accessor :owner, :unit
+    attr_accessor :owner, :unit, :coast
 
-    def initialize(owner = nil, unit = nil)
+    def initialize(owner=nil, unit=nil, coast=nil)
       @owner = owner
       @unit = unit
+      @coast = coast
     end
 
     def to_s
-      out = ""
+      out = []
       out << "#{@owner}"
-      out << ", #{@unit.type_to_s} (#{@unit.nationality})" if @unit
-      out
+      out << "#{@unit.type_to_s}#{@coast.nil? ? "" : " #{@coast}"} (#{@unit.nationality})" if @unit
+      out.join ","
+    end
+
+    def ==(other)
+      return (@owner == other.owner and @unit == other.unit and @coast == other.coast)
     end
   end
 
@@ -95,6 +104,14 @@ module Diplomacy
       builds.each do |b|
         set_area_unit(b.unit_area, b.build ? b.unit : nil) if b.succeeded?
       end
+    end
+
+    def ==(other)
+      return false if other.keys() != self.keys()
+      self.each do |k, v|
+        return false if other[k] != v
+      end
+      return true
     end
   end
 end
