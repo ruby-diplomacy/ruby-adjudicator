@@ -27,7 +27,7 @@ module Diplomacy
     end
 
     def ==(other)
-      return (@nationality == other.nationality and @type == other.type)
+      return ((not other.nil?) and @nationality == other.nationality and @type == other.type)
     end
   end
 
