@@ -94,7 +94,7 @@ module Diplomacy
       @backup_rule = backup_rule || BackupRule.new(:simple_circular, :convoy_paradox)
     end
 
-    def resolve!(state, unchecked_orders)
+    def resolve!(state, unchecked_orders, adjust=false)
       validator = Validator.new(state, @map, unchecked_orders)
       @orders, invalid_orders = validator.validate_orders
       
@@ -107,7 +107,7 @@ module Diplomacy
       
       reconcile!(@orders.orders, invalid_orders)
       
-      state.apply_orders!(@orders.orders)
+      state.apply_orders!(@orders.orders, adjust)
       
       return state,@orders.orders
     end
@@ -527,7 +527,7 @@ module Diplomacy
       end
     end
 
-    def resolve_retreats!(state, unchecked_retreats)
+    def resolve_retreats!(state, unchecked_retreats, adjust=false)
       validator = Validator.new(state, @map, unchecked_retreats)
       @retreats, invalid_retreats = validator.validate_orders(false)
 
@@ -541,7 +541,7 @@ module Diplomacy
 
       reconcile!(@retreats.orders, invalid_retreats)
 
-      state.apply_retreats! @retreats.orders
+      state.apply_retreats! @retreats.orders, adjust
 
       return state, @retreats.orders
     end
