@@ -40,6 +40,10 @@ module Diplomacy
       @coast = coast
     end
 
+    def conquer
+      @owner = @unit.nationality unless @unit.nil?
+    end
+
     def to_s
       out = []
       out << "#{@owner}"
@@ -57,7 +61,7 @@ module Diplomacy
     
     def initialize
       self.default_proc = proc {|this_hash, nonexistent_key| this_hash[nonexistent_key] = AreaState.new }
-      self.retreats = {}
+      @retreats = {}
     end
     
     def area_state(area)
@@ -76,7 +80,7 @@ module Diplomacy
       area_state(area).unit = unit
     end
     
-    def apply_orders!(orders, adjust=false)
+    def apply_orders!(orders)
       orders.each do |order|
         if Move === order && order.succeeded?
           if (dislodged_unit = area_unit(order.dst))
@@ -85,24 +89,26 @@ module Diplomacy
           
           set_area_unit(order.dst, area_unit(order.unit_area))
           set_area_unit(order.unit_area, nil)
-          
-          self[order.dst].owner = order.unit.nationality if adjust
         end
       end
     end
 
-    def apply_retreats!(retreats, adjust=false)
+    def apply_retreats!(retreats)
       retreats.each do |r|
-        set_area_unit(r.dst, self.retreats[r.unit_area]) if r.succeeded?
+        set_area_unit(r.dst, @retreats[r.unit_area]) if r.succeeded?
         # do nothing about the failed ones, they will be discarded
-
-        self[r.dst].owner = r.unit.nationality if adjust
       end
     end
 
     def apply_builds!(builds)
       builds.each do |b|
         set_area_unit(b.unit_area, b.build ? b.unit : nil) if b.succeeded?
+      end
+    end
+
+    def adjust!(map)
+      self.each do |abbrv, area_state|
+        area_state.conquer if map.areas[abbrv].is_land?
       end
     end
 

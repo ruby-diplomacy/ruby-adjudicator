@@ -49,25 +49,6 @@ module Diplomacy
         @gs[:Tri].unit.should eq(@austrian_fleet)
         @gs.retreats[:Ven].should eq(@italian_army)
       end
-
-      it "changes ownership on successful move (with adjust=true)" do
-        move = Move.new(@italian_army, :Ven, :Pie)
-        move.succeed
-
-        @gs.apply_orders! [ move ], true
-
-        @gs[:Pie].owner.should eq(@italian_army.nationality)
-      end
-
-      it "changes ownership on dislodge (with adjust=true)" do
-        move = Move.new(@austrian_army, :Tyr, :Ven)
-        support = Support.new(@austrian_fleet, :Tri, :Tyr, :Ven)
-        hold = Hold.new(@italian_army, :Ven)
-
-        @gs.apply_orders! [ move, support, hold ].each {|o| o.succeed }, true
-
-        @gs[:Ven].owner.should eq(@austrian_army.nationality)
-      end
     end
 
     describe "#apply_retreats!" do
@@ -101,15 +82,6 @@ module Diplomacy
         @gs.apply_retreats! [ retreat, other_retreat ]
 
         @gs[:Pie].unit.should be_nil
-      end
-
-      it "changes ownership on successful retreat (with adjust=true)" do
-        retreat = Retreat.new @italian_army, :Ven, :Pie
-        retreat.succeed
-
-        @gs.apply_retreats! [ retreat ], true
-
-        @gs[:Pie].owner.should eq(@italian_army.nationality)
       end
     end
 

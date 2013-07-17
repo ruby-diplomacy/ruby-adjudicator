@@ -83,7 +83,7 @@ module Diplomacy
     attr_accessor :orders
     attr_accessor :map
     
-    def initialize(map = nil, backup_rule=nil)
+    def initialize(map = nil, backup_rule=nil, adjust=false)
       @logger = Diplomacy.logger
       if map
         @map = map
@@ -107,7 +107,9 @@ module Diplomacy
       
       reconcile!(@orders.orders, invalid_orders)
       
-      state.apply_orders!(@orders.orders, adjust)
+      state.apply_orders! @orders.orders
+
+      state.adjust!(@map) if adjust
       
       return state,@orders.orders
     end
@@ -541,7 +543,9 @@ module Diplomacy
 
       reconcile!(@retreats.orders, invalid_retreats)
 
-      state.apply_retreats! @retreats.orders, adjust
+      state.apply_retreats! @retreats.orders
+
+      state.adjust!(@map) if adjust
 
       return state, @retreats.orders
     end
