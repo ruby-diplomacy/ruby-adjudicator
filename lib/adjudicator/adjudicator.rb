@@ -3,17 +3,18 @@ require_relative 'backup_rule'
 
 module Diplomacy
   class Validator
-    def initialize(state, map, order_list)
+    def initialize(state, map, order_list, class_list)
       @logger = Diplomacy.logger
       @state = state
       @map = map
       @orders = OrderCollection.new(order_list)
       @invalid_orders = []
+      @class_list = class_list
     end
     
     def validate_orders(substitute_holds=true)
       @orders.each do |order|
-        order.invalidate unless valid_order?(order)
+        order.invalidate unless valid_order?(order) and @class_list.member? order.class
         @logger.debug "Decided: #{order.status_readable}"
       end
       sanitized_orders = @orders.orders.collect do |order|
@@ -95,7 +96,7 @@ module Diplomacy
     end
 
     def resolve!(state, unchecked_orders, adjust=false)
-      validator = Validator.new(state, @map, unchecked_orders)
+      validator = Validator.new(state, @map, unchecked_orders, [Move, Support, SupportHold, Convoy, Hold])
       @orders, invalid_orders = validator.validate_orders
       
       @state = state
@@ -530,7 +531,7 @@ module Diplomacy
     end
 
     def resolve_retreats!(state, unchecked_retreats, adjust=false)
-      validator = Validator.new(state, @map, unchecked_retreats)
+      validator = Validator.new(state, @map, unchecked_retreats, [Retreat])
       @retreats, invalid_retreats = validator.validate_orders(false)
 
       @retreats.retreats.each do |area, retreats|
@@ -551,7 +552,7 @@ module Diplomacy
     end
 
     def resolve_builds!(state, unchecked_builds)
-      validator = Validator.new(state, @map, unchecked_builds)
+      validator = Validator.new(state, @map, unchecked_builds, [Build])
       @builds, invalid_builds = validator.validate_orders(false)
 
       @builds.orders.each {|build| build.succeed unless build.nil? }
