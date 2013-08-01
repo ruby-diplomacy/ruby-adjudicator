@@ -70,7 +70,7 @@ module Diplomacy
     end
 
     def supply_centers
-      @areas.select {|area| area.is_supply? }
+      @areas.select {|abbrv, area| area.is_supply? }
     end
 
     def add_supply_center(abbr)
