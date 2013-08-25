@@ -22,7 +22,7 @@ Feature: adjudicator resolves orders
     | Eng:FNth,AYor,ALiv Ger:ALon,AWal | FNthCAYor-Yor,AYor-Yor,ALivSAYor-Yor,FLon-Yor,AWalSFLon-Yor | IIISS |
    #| Eng:FLon | FLon-Nth | F | 6.A.6 The order is given by Germany, this makes no sense in our context
     | Eng:FLon,FNth | FLon-Bel,FNthCALon-Bel | FF |
-    | Ita:AVen,ATyr Aus:FTri | AVen-Tri,ATyrSAVen-Tri,FTriSFTri | SSF |
+    | Ita:AVen,ATyr Aus:FTri | AVen-Tri,ATyrSAVen-Tri,FTriSFTriH | SSF |
     | Ita:FRom | FRom-Ven | F |
     | Aus:AVen Ita:FRom,AApu | AVenH,FRomSAApu-Ven,AApu-Ven | SFF |
     | Aus:AVie Ita:AVen | AVie-Tyr,AVen-Tyr | FF |
@@ -32,7 +32,7 @@ Feature: adjudicator resolves orders
     | currentstate | orders | adjudication |
     | Fra:FGas,FMar Ita:FWes | FGas-Spa(nc),FMarSFGas-Spa(nc),FWes-Spa(sc) | SSF |
     | Fra:FMar,FSpa(nc) Ita:FLyo | FMar-Lyo,FSpa(nc)SFMar-Lyo,FLyoH | FIS |
-    | Eng:FIri,FNAO Fra:FSpa(nc),FMAO Ita:FLyo | FIriSFNAO-MAO,FNAO-MAO,FSpa(nc)SFMAO,FMAOH,FLyo-Spa(sc) | SSFSF |
+    | Eng:FIri,FNAO Fra:FSpa(nc),FMAO Ita:FLyo | FIriSFNAO-MAO,FNAO-MAO,FSpa(nc)SFMAOH,FMAOH,FLyo-Spa(sc) | SSFSF |
     | Tur:FBul(sc),FCon | FBul(sc)-Con,FCon-Bul(ec) | FF |
 
   Scenarios: Diplomacy Adjudicator Test Cases - Circular Movement
@@ -47,14 +47,14 @@ Feature: adjudicator resolves orders
     
   Scenarios: Diplomacy Adjudicator Test Cases - Supports and Dislodges
     | currentstate | orders | adjudication |
-    | Aus:FAdr,ATri Ita:AVen,ATyr | FAdrSATri-Ven,ATri-Ven,AVenH,ATyrSAVen | SFSS |
-    | Aus:FAdr,ATri,AVie Ita:AVen,ATyr | FAdrSATri-Ven,ATri-Ven,AVie-Tyr,AVenH,ATyrSAVen | SSFSF |
+    | Aus:FAdr,ATri Ita:AVen,ATyr | FAdrSATri-Ven,ATri-Ven,AVenH,ATyrSAVenH | SFSS |
+    | Aus:FAdr,ATri,AVie Ita:AVen,ATyr | FAdrSATri-Ven,ATri-Ven,AVie-Tyr,AVenH,ATyrSAVenH | SSFSF |
     | Aus:FAdr,ATri Ita:AVen,FIon | FAdrSATri-Ven,ATri-Ven,AVenH,FIon-Adr | FFSF |
-    | Ger:ABer,FKie Rus:FBal,APru | ABerSFKie,FKieSABer,FBalSAPru-Ber,APru-Ber | FSSF |
-    | Ger:ABer,FKie,AMun Rus:FBal,APru | ABerSAMun-Sil,FKieSABer,AMun-Sil,FBalSAPru-Ber,APru-Ber | FSSSF |
-    | Ger:ABer,FBal,FPru Rus:FLvn,FBot | ABer-Swe,FBalCABer-Swe,FPruSFBal,FLvn-Bal,FBotSFLvn-Bal | SSSFS |
-    | Ger:FBal,FPru Rus:FLvn,FBot,AFin | FBal-Swe,FPruSFBal,FLvn-Bal,FBotSFLvn-Bal,AFin-Swe | FFSSF |
-    | Aus:FIon,ASer,AAlb Tur:AGre,ABul | FIonH,ASerSAAlb-Gre,AAlb-Gre,AGre-Nap,ABulSAGre | SSSFF |
+    | Ger:ABer,FKie Rus:FBal,APru | ABerSFKieH,FKieSABerH,FBalSAPru-Ber,APru-Ber | FSSF |
+    | Ger:ABer,FKie,AMun Rus:FBal,APru | ABerSAMun-Sil,FKieSABerH,AMun-Sil,FBalSAPru-Ber,APru-Ber | FSSSF |
+    | Ger:ABer,FBal,FPru Rus:FLvn,FBot | ABer-Swe,FBalCABer-Swe,FPruSFBalH,FLvn-Bal,FBotSFLvn-Bal | SSSFS |
+    | Ger:FBal,FPru Rus:FLvn,FBot,AFin | FBal-Swe,FPruSFBalH,FLvn-Bal,FBotSFLvn-Bal,AFin-Swe | FFSSF |
+    | Aus:FIon,ASer,AAlb Tur:AGre,ABul | FIonH,ASerSAAlb-Gre,AAlb-Gre,AGre-Nap,ABulSAGreH | SSSFF |
     | Ita:AVen,ATyr Aus:AAlb,ATri | AVen-Tri,ATyrSAVen-Tri,AAlbSATri-Ser,ATriH | SSFS |
     | Ger:ABer,FKie,AMun | ABerH,FKie-Ber,AMunSFKie-Ber | SFS |
     | Ger:ABer,FKie,AMun Rus:AWar | ABer-Pru,FKie-Ber,AMunSFKie-Ber,AWar-Pru | FFSF |
@@ -64,21 +64,21 @@ Feature: adjudicator resolves orders
     | Rus:FCon,FBla Tur:FAnk | FConSFBla-Ank,FBla-Ank,FAnk-Con | SSF |
     | Eng:ALon,FNth Fra:FEng,ABel | ALonH,FNthCABel-Lon,FEngSABel-Lon,ABel-Lon | SSSS |
     | Rus:FCon,FBla Tur:FAnk,ASmy,AArm | FConSFBla-Ank,FBla-Ank,FAnk-Con,ASmySFAnk-Con,AArm-Ank | FFSSF |
-    | Rus:FCon,FBla,ABul Tur:FAnk,ASmy,AArm | FConSFBla-Ank,FBla-Ank,ABulSFCon,FAnk-Con,ASmySFAnk-Con,AArm-Ank | SSSFSF |
+    | Rus:FCon,FBla,ABul Tur:FAnk,ASmy,AArm | FConSFBla-Ank,FBla-Ank,ABulSFConH,FAnk-Con,ASmySFAnk-Con,AArm-Ank | SSSFSF |
     | Rus:FCon,FBla,ASmy Tur:FAnk | FConSFBla-Ank,FBla-Ank,ASmySFAnk-Con,FAnk-Con | SSSF |
     | Eng:FLon,FNth,AYor Fra:FEng | FLonSFNth-Eng,FNth-Eng,AYor-Lon,FEngH | SSFS |
     | Aus:FTri Ita:AVen,ATyr Ger:AMun Rus:ASil,ABer | FTriH,AVen-Tri,ATyrSAVen-Tri,AMun-Tyr,ASil-Mun,ABerSASil-Mun | SFFFSS |
     | Ger:FKie,ABur Rus:AMun,ABer | FKie-Mun,ABurSFKie-Mun,AMun-Kie,ABerSAMun-Kie | FFSS |
     | Ita:FLyo,FWes Fra:FSpa(nc),FMar | FLyo-Spa(sc),FWesSFLyo-Spa(sc),FSpa(nc)-Lyo,FMarSFSpa(nc)-Lyo | SSII |
     | Fra:AMar,FSpa(sc) Ita:FLyo Tur:FTys,FWes | AMar-Lyo,FSpa(sc)SAMar-Lyo,FLyoH,FTysSFWes-Lyo,FWes-Lyo | IFSSS |
-    | Ger:ABer,FKie Rus:FBal,APru | ABerSAPru,FKieSABer,FBalSAPru-Ber,APru-Ber | FSSF | 
-    | Ger:ABer,FKie Rus:FBal,APru | ABerSAPru-Sil,FKieSABer,FBalSAPru-Ber,APru-Ber | FSSF |
-    | Eng:FSwe,FDen Ger:ABer Rus:FBal,FPru | FSwe-Bal,FDenSFSwe-Bal,ABerH,FBalCABer-Lvn,FPruSFBal | FSSFS |
-    | Aus:ABud Rus:FRum Tur:FBla,ABul | ABudSFRum,FRum-Hol,FBla-Rum,ABulSFBla-Rum | SFFS |
-   #| Aus:ABud Rus:FRum Tur:FBla,ABul | ABudSFRum,FRum-Bul(sc),FBla-Rum,ABulSFBla-Rum | SFFS | perhaps without meaning for us, no corrections will ever be made
+    | Ger:ABer,FKie Rus:FBal,APru | ABerSAPruH,FKieSABerH,FBalSAPru-Ber,APru-Ber | FSSF | 
+    | Ger:ABer,FKie Rus:FBal,APru | ABerSAPru-Sil,FKieSABerH,FBalSAPru-Ber,APru-Ber | FSSF |
+    | Eng:FSwe,FDen Ger:ABer Rus:FBal,FPru | FSwe-Bal,FDenSFSwe-Bal,ABerH,FBalCABer-Lvn,FPruSFBalH | FSSFS |
+    | Aus:ABud Rus:FRum Tur:FBla,ABul | ABudSFRumH,FRum-Hol,FBla-Rum,ABulSFBla-Rum | SFFS |
+   #| Aus:ABud Rus:FRum Tur:FBla,ABul | ABudSFRumH,FRum-Bul(sc),FBla-Rum,ABulSFBla-Rum | SFFS | perhaps without meaning for us, no corrections will ever be made
    #| Ita:Aeg Rus:FCon...
     | Aus:ARum Tur:FBla | ARum-Arm,FBlaSARum-Arm | FS |
-   #| Eng:FEdi,ALiv Fra:FLon Ger:AYor | FEdiSALiv-Yor,ALiv-Yor,FLonSAYor,AYor-Hol | SFSF |
+   #| Eng:FEdi,ALiv Fra:FLon Ger:AYor | FEdiSALiv-Yor,ALiv-Yor,FLonSAYorH,AYor-Hol | SFSF |
     | Aus:ASer,AVie Rus:AGal Tur:ABul | ASer-Bud,AVie-Bud,AGalSASer-Bud,ABul-Ser | SFSS |
     | Ger:ABer,ASil,FBal Ita:APru Rus:AWar,ALvn | ABer-Pru,ASilSABer-Pru,FBalSABer-Pru,APruSALvn-Pru,AWarSALvn-Pru,ALvn-Pru | SSSFSF |
     
@@ -107,7 +107,7 @@ Feature: adjudicator resolves orders
     | Eng:FEng,ALon,FMAO Fra:APar | FEngCALon-Bre,ALon-Bre,FMAOSALon-Bre,APar-Bre | SSSF |
     | Eng:FNth,ALon Ger:FSka | FNthCALon-Hol,ALon-Hol,FSka-Nth | SSF |
     | Eng:FNth,ALon Fra:FEng,FBel Ger:FSka,FDen | FNthCALon-Hol,ALon-Hol,FEng-Nth,FBelSFEng-Nth,FSka-Nth,FDenSFSka-Nth | SSFSFS |
-    | Eng:FNth,ALon Ger:AHol,ABel,FHel,FSka Fra:APic,ABur | FNthCALon-Hol,ALon-Hol,AHolSABel,ABelSAHol,FHelSFSka-Nth,FSka-Nth,APic-Bel,ABurSAPic-Bel | FFSFSSFS |
+    | Eng:FNth,ALon Ger:AHol,ABel,FHel,FSka Fra:APic,ABur | FNthCALon-Hol,ALon-Hol,AHolSABelH,ABelSAHolH,FHelSFSka-Nth,FSka-Nth,APic-Bel,ABurSAPic-Bel | FFSFSSFS |
    #| Eng:FNth,ALon Ger:FHel,FSka...
     | Eng:FNth,ALon Ger:FHel,FSka,ABel | FNthCALon-Hol,ALon-Hol,FHelSFSka-Nth,FSka-Nth,ABel-Hol | FFSSS |
     | Eng:FEng,FNth,ALon Fra:FBre,FMAO | FEngCALon-Bel,FNthCALon-Bel,ALon-Bel,FBreSFMAO-Eng,FMAO-Eng | FSSSS |
@@ -127,10 +127,10 @@ Feature: adjudicator resolves orders
 
   Scenarios: Retreats
     | currentstate | orders | retreats | adjudication |
-    | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur-Mun | S |
-    | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur-Kie | I |
-    | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur-Mun,ABer-Mun | FF |
-    | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur-Mun,ABer-Kie | SS |
+    | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur*Mun | S |
+    | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur*Kie | I |
+    | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur*Mun,ABer*Mun | FF |
+    | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur*Mun,ABer*Kie | SS |
 
   Scenario Outline: Build tests
     Given current state "<currentstate>"
