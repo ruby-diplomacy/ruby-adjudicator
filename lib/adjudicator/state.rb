@@ -84,7 +84,7 @@ module Diplomacy
       orders.each do |order|
         if Move === order && order.succeeded?
           if (dislodged_unit = area_unit(order.dst))
-            @retreats[order.dst] = area_unit(order.dst)
+            @retreats[order.dst] = RetreatTuple.new(area_unit(order.dst), order.unit_area)
           end
           
           set_area_unit(order.dst, area_unit(order.unit_area))
@@ -95,7 +95,7 @@ module Diplomacy
 
     def apply_retreats!(retreats)
       retreats.each do |r|
-        set_area_unit(r.dst, @retreats[r.unit_area]) if r.succeeded?
+        set_area_unit(r.dst, @retreats[r.unit_area].dislodged_unit) if r.succeeded?
         # do nothing about the failed ones, they will be discarded
       end
     end
@@ -118,6 +118,16 @@ module Diplomacy
         return false if other[k] != v
       end
       return true
+    end
+  end
+
+  class RetreatTuple
+    attr_accessor :dislodged_unit
+    attr_accessor :origin_area
+
+    def initialize(dislodged_unit, origin_area)
+      @dislodged_unit = dislodged_unit
+      @origin_area = origin_area
     end
   end
 end

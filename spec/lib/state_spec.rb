@@ -47,7 +47,8 @@ module Diplomacy
         @gs[:Ven].unit.should eq(@austrian_army)
         @gs[:Tyr].unit.should be_nil
         @gs[:Tri].unit.should eq(@austrian_fleet)
-        @gs.retreats[:Ven].should eq(@italian_army)
+        @gs.retreats[:Ven].dislodged_unit.should eq(@italian_army)
+        @gs.retreats[:Ven].origin_area.should eq(move.unit_area)
       end
     end
 
@@ -59,7 +60,8 @@ module Diplomacy
         @austrian_army = Unit.new("Austria", Unit::ARMY)
         @austrian_fleet = Unit.new("Austria", Unit::FLEET)
 
-        @gs.retreats[:Ven] = @italian_army
+        @origin_area = :Tyr
+        @gs.retreats[:Ven] = RetreatTuple.new(@italian_army, @origin_area)
         @gs[:Tri] = AreaState.new "Austria", @austrian_fleet
         @gs[:Ven] = AreaState.new "Austria", @austrian_army
       end
