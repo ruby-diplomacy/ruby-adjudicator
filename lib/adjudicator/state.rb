@@ -32,12 +32,13 @@ module Diplomacy
   end
 
   class AreaState
-    attr_accessor :owner, :unit, :coast
+    attr_accessor :owner, :unit, :coast, :embattled
 
-    def initialize(owner=nil, unit=nil, coast=nil)
+    def initialize(owner=nil, unit=nil, coast=nil, embattled=false)
       @owner = owner
       @unit = unit
       @coast = coast
+      @embattled = embattled
     end
 
     def conquer
@@ -82,13 +83,18 @@ module Diplomacy
     
     def apply_orders!(orders)
       orders.each do |order|
-        if Move === order && order.succeeded?
-          if (dislodged_unit = area_unit(order.dst))
-            @retreats[order.dst] = RetreatTuple.new(area_unit(order.dst), order.unit_area)
+        if Move === order
+          # mark area embattled for all moves - it will only matter in empty areas
+          self[order.dst].embattled = true
+
+          if order.succeeded?
+            if (dislodged_unit = area_unit(order.dst))
+              @retreats[order.dst] = RetreatTuple.new(dislodged_unit, order.unit_area)
+            end
+
+            set_area_unit(order.dst, area_unit(order.unit_area))
+            set_area_unit(order.unit_area, nil)
           end
-          
-          set_area_unit(order.dst, area_unit(order.unit_area))
-          set_area_unit(order.unit_area, nil)
         end
       end
     end

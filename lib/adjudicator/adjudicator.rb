@@ -535,7 +535,7 @@ module Diplomacy
       @retreats, invalid_retreats = validator.validate_orders(false)
 
       @retreats.retreats.each do |area, retreats|
-        if retreats.length == 1
+        if retreats.length == 1 and (not state[area].embattled)
           retreats[0].succeed
         else
           retreats.each {|r| r.fail }

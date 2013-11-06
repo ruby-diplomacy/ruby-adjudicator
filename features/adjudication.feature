@@ -128,6 +128,7 @@ Feature: adjudicator resolves orders
   Scenarios: Retreats
     | currentstate | orders | retreats | adjudication |
     | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur*Mun | S |
+    | Fra:APar,AMar Ger:ABur Eng:AKie Aus:ABoh | APar-Bur,AMarSAPar-Bur,ABurH,AKie-Mun,ABoh-Mun | ABur*Mun | F |
     | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | ABur*Kie | I |
     | Fra:APar,AMar Ger:ABur | APar-Bur,AMarSAPar-Bur,ABurH | AMar*Pie | I |
     | Fra:APar,AMar Ger:ABur,ABer Rus:APru,ASil | APar-Bur,AMarSAPar-Bur,ABurH,ABerH,APru-Ber,ASilSAPru-Ber | ABur*Mun,ABer*Mun | FF |
