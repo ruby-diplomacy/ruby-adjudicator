@@ -54,7 +54,7 @@ module Diplomacy
         m.dst_coast = order.dst_coast
         return false unless valid_order?(m)
       when Retreat
-        return valid_move?(order)
+        return (valid_move?(order) and (not @state.retreats[order.unit_area].nil?))
       when Build
         area = @map.areas[order.unit_area]
         if order.build
