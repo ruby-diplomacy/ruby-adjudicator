@@ -49,6 +49,7 @@ module Diplomacy
       out = []
       out << "#{@owner}"
       out << "#{@unit.type_to_s}#{@coast.nil? ? "" : " #{@coast}"} (#{@unit.nationality})" if @unit
+      out << "(emb.)" if @embattled
       out.join ","
     end
 
@@ -72,15 +73,27 @@ module Diplomacy
         self[area] || (self[area] = AreaState.new)
       end
     end
-    
+
+    def retreat_state(area)
+      if Area === area
+        @retreats[area.abbrv] || RetreatTuple.new(nil, nil)
+      elsif Symbol === area
+        @retreats[area] || RetreatTuple.new(nil, nil)
+      end
+    end
+
     def area_unit(area)
       area_state(area).unit
     end
-    
+
     def set_area_unit(area, unit)
       area_state(area).unit = unit
     end
-    
+
+    def retreat_attacker_origin(retreat_order)
+      retreat_state(retreat_order.unit_area).origin_area
+    end
+
     def apply_orders!(orders)
       orders.each do |order|
         if Move === order
