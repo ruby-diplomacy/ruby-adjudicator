@@ -95,7 +95,7 @@ module Diplomacy
         gamestate[:Bel] = AreaState.new(:England, Unit.new(:England, Unit::ARMY))
         gamestate[:Nth] = AreaState.new(nil, Unit.new(:England, Unit::FLEET))
         gamestate[:Eng] = AreaState.new(nil, Unit.new(:England, Unit::FLEET))
-        gamestate.retreats[:Bel] = RetreatTuple.new(Unit.new(:France, Unit::ARMY), :Lon)
+        gamestate.dislodges[:Bel] = DislodgeTuple.new(Unit.new(:France, Unit::ARMY), :Lon)
         sp = StateParser.new gamestate
         sp.dump_state.should eq("England:ABel,FNth,FEng|Bel France:ABel*Lon")
       end

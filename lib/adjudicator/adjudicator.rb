@@ -54,7 +54,7 @@ module Diplomacy
         m.dst_coast = order.dst_coast
         return false unless valid_order?(m)
       when Retreat
-        return (valid_move?(order) and (not @state.retreats[order.unit_area].nil?))
+        return (valid_move?(order) and (not @state.dislodges[order.unit_area].nil?))
       when Build
         area = @map.areas[order.unit_area]
         if order.build
@@ -537,7 +537,7 @@ module Diplomacy
       @retreats.retreats.each do |area, retreats|
         if retreats.length == 1 and
           (not state[area].embattled) and
-          (not retreats[0].dst == state.retreat_attacker_origin(retreats[0]))
+          (not retreats[0].dst == state.dislodge_attacker_origin(retreats[0]))
 
           retreats[0].succeed
         else

@@ -59,11 +59,11 @@ module Diplomacy
   end
 
   class GameState < Hash
-    attr_accessor :retreats
+    attr_accessor :dislodges
 
     def initialize
       self.default_proc = proc {|this_hash, nonexistent_key| this_hash[nonexistent_key] = AreaState.new }
-      @retreats = {}
+      @dislodges = {}
     end
 
     def area_state(area)
@@ -74,11 +74,11 @@ module Diplomacy
       end
     end
 
-    def retreat_state(area)
+    def dislodge_state(area)
       if Area === area
-        @retreats[area.abbrv] || RetreatTuple.new(nil, nil)
+        @dislodges[area.abbrv] || DislodgeTuple.new(nil, nil)
       elsif Symbol === area
-        @retreats[area] || RetreatTuple.new(nil, nil)
+        @dislodges[area] || DislodgeTuple.new(nil, nil)
       end
     end
 
@@ -90,8 +90,8 @@ module Diplomacy
       area_state(area).unit = unit
     end
 
-    def retreat_attacker_origin(retreat_order)
-      retreat_state(retreat_order.unit_area).origin_area
+    def dislodge_attacker_origin(dislodge_order)
+      dislodge_state(dislodge_order.unit_area).origin_area
     end
 
     def apply_orders!(orders)
@@ -101,8 +101,8 @@ module Diplomacy
           self[order.dst].embattled = true
 
           if order.succeeded?
-            if (dislodged_unit = area_unit(order.dst))
-              @retreats[order.dst] = RetreatTuple.new(dislodged_unit, order.unit_area)
+            if (unit = area_unit(order.dst))
+              @dislodges[order.dst] = DislodgeTuple.new(unit, order.unit_area)
             end
 
             set_area_unit(order.dst, area_unit(order.unit_area))
@@ -114,7 +114,7 @@ module Diplomacy
 
     def apply_retreats!(retreats)
       retreats.each do |r|
-        set_area_unit(r.dst, @retreats[r.unit_area].dislodged_unit) if r.succeeded?
+        set_area_unit(r.dst, @dislodges[r.unit_area].unit) if r.succeeded?
         # do nothing about the failed ones, they will be discarded
       end
     end
@@ -140,17 +140,17 @@ module Diplomacy
     end
   end
 
-  class RetreatTuple
-    attr_accessor :dislodged_unit
+  class DislodgeTuple
+    attr_accessor :unit
     attr_accessor :origin_area
 
-    def initialize(dislodged_unit, origin_area)
-      @dislodged_unit = dislodged_unit
+    def initialize(unit, origin_area)
+      @unit = unit
       @origin_area = origin_area
     end
 
     def to_s
-      "#{@dislodged_unit.type_to_s}(#{@dislodged_unit.nationality})*#{@origin_area}"
+      "#{@unit.type_to_s}(#{@unit.nationality})*#{@origin_area}"
     end
   end
 end

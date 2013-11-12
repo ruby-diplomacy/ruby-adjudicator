@@ -78,14 +78,14 @@ module Diplomacy
         end
       end
 
-      @gamestate.retreats.each do |area, retreat_tuple|
-        nationality = retreat_tuple.dislodged_unit.nationality
+      @gamestate.dislodges.each do |area, dislodge_tuple|
+        nationality = dislodge_tuple.unit.nationality
 
         unless powers.has_key? nationality
           powers[nationality] = StateParser.empty_power_state
         end
 
-        powers[nationality][:retreats][area] = retreat_tuple
+        powers[nationality][:dislodges][area] = dislodge_tuple
       end
 
       powers.each do |power, state|
@@ -104,8 +104,8 @@ module Diplomacy
         dumped_units << dump_unit(area, unit)
       end
 
-      state[:retreats].each do |area, retreat_tuple|
-        dumped_units << dump_retreat(area, retreat_tuple)
+      state[:dislodges].each do |area, dislodge_tuple|
+        dumped_units << dump_dislodge(area, dislodge_tuple)
       end
 
       output << dumped_units.join(",")
@@ -119,12 +119,12 @@ module Diplomacy
       "#{unit.type_to_s}#{area}"
     end
 
-    def dump_retreat(area, retreat_tuple)
-      "#{dump_unit(area, retreat_tuple.dislodged_unit)}*#{retreat_tuple.origin_area}"
+    def dump_dislodge(area, dislodge_tuple)
+      "#{dump_unit(area, dislodge_tuple.unit)}*#{dislodge_tuple.origin_area}"
     end
 
     def self.empty_power_state
-      { units: {}, areas: [], retreats: {} }
+      { units: {}, areas: [], dislodges: {} }
     end
   end
 end
