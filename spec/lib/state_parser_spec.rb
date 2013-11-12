@@ -89,6 +89,16 @@ module Diplomacy
         sp = StateParser.new gamestate
         sp.dump_state.should eq("Russia:FStP(sc),FSev,AWar,AMos|StP,Sev,War,Mos,Ukr,Liv,Fin")
       end
+
+      it "dumps correctly a position with a dislodged unit" do
+        gamestate = GameState.new
+        gamestate[:Bel] = AreaState.new(:England, Unit.new(:England, Unit::ARMY))
+        gamestate[:Nth] = AreaState.new(nil, Unit.new(:England, Unit::FLEET))
+        gamestate[:Eng] = AreaState.new(nil, Unit.new(:England, Unit::FLEET))
+        gamestate.retreats[:Bel] = RetreatTuple.new(Unit.new(:France, Unit::ARMY), :Lon)
+        sp = StateParser.new gamestate
+        sp.dump_state.should eq("England:ABel,FNth,FEng|Bel France:ABel*Lon")
+      end
     end
   end
 

@@ -65,18 +65,29 @@ module Diplomacy
           nationality = area_state.unit.nationality
 
           unless powers.has_key? nationality
-            powers[nationality] = { units: {}, areas: [] }
+            powers[nationality] = StateParser.empty_power_state
           end
           full_area = :"#{area}#{ area_state.coast.nil? ? "" : "(#{area_state.coast})"}"
           powers[nationality][:units][full_area] = area_state.unit
         end
         unless area_state.owner.nil?
           unless powers.has_key? area_state.owner
-            powers[area_state.owner] = { units: {}, areas: [] }
+            powers[area_state.owner] = StateParser.empty_power_state
           end
           powers[area_state.owner][:areas] << area
         end
       end
+
+      @gamestate.retreats.each do |area, retreat_tuple|
+        nationality = retreat_tuple.dislodged_unit.nationality
+
+        unless powers.has_key? nationality
+          powers[nationality] = StateParser.empty_power_state
+        end
+
+        powers[nationality][:retreats][area] = retreat_tuple
+      end
+
       powers.each do |power, state|
         output << dump_power(power, state)
       end
@@ -88,10 +99,13 @@ module Diplomacy
 
       output = "#{power}:"
       dumped_units = []
-      dumped_areas = []
 
       state[:units].each do |area, unit|
         dumped_units << dump_unit(area, unit)
+      end
+
+      state[:retreats].each do |area, retreat_tuple|
+        dumped_units << dump_retreat(area, retreat_tuple)
       end
 
       output << dumped_units.join(",")
@@ -103,6 +117,14 @@ module Diplomacy
 
     def dump_unit(area, unit)
       "#{unit.type_to_s}#{area}"
+    end
+
+    def dump_retreat(area, retreat_tuple)
+      "#{dump_unit(area, retreat_tuple.dislodged_unit)}*#{retreat_tuple.origin_area}"
+    end
+
+    def self.empty_power_state
+      { units: {}, areas: [], retreats: {} }
     end
   end
 end

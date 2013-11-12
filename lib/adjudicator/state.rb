@@ -60,12 +60,12 @@ module Diplomacy
 
   class GameState < Hash
     attr_accessor :retreats
-    
+
     def initialize
       self.default_proc = proc {|this_hash, nonexistent_key| this_hash[nonexistent_key] = AreaState.new }
       @retreats = {}
     end
-    
+
     def area_state(area)
       if Area === area
         self[area.abbrv] || (self[area.abbrv] = AreaState.new)
@@ -147,6 +147,10 @@ module Diplomacy
     def initialize(dislodged_unit, origin_area)
       @dislodged_unit = dislodged_unit
       @origin_area = origin_area
+    end
+
+    def to_s
+      "#{@dislodged_unit.type_to_s}(#{@dislodged_unit.nationality})*#{@origin_area}"
     end
   end
 end
