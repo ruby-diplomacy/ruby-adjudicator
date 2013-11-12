@@ -28,7 +28,7 @@ module Diplomacy
           @gamestate[:Bre].unit.should_not be_nil
           @gamestate[:Bre].unit.nationality.should eq(:France)
           @gamestate[:Bre].unit.type.should eq(Unit::FLEET)
-          
+
           @gamestate[:Mar].unit.should_not be_nil
           @gamestate[:Mar].unit.nationality.should eq(:France)
           @gamestate[:Mar].unit.type.should eq(Unit::ARMY)
@@ -60,6 +60,26 @@ module Diplomacy
 
         it "doesn't set Austria as the owner of Albania" do
           @gamestate[:Alb].owner.should_not eq(:Austria)
+        end
+      end
+
+      context "England dislodged France in Belgium" do
+        before :each do
+          @sp = StateParser.new
+          blob = "England:ABel,FNth,FEng|Bel France:ABel*Lon"
+          @gamestate = @sp.parse_state blob
+        end
+
+        it "places the French army in dislodges" do
+          dislodge_tuple = @gamestate.dislodges[:Bel]
+
+          dislodge_tuple.unit.should_not be_nil
+          dislodge_tuple.unit.nationality.should eq(:France)
+          dislodge_tuple.unit.type.should eq(Unit::ARMY)
+        end
+
+        it "doesn't place any more units in dislodges" do
+          @gamestate.dislodges.length.should eq(1)
         end
       end
     end

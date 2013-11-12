@@ -22,8 +22,12 @@ module Diplomacy
       unless unit_array.nil? or unit_array.empty?
         unit_array = unit_array.split %r{,\s*}
         unit_array.each do |unit_blob|
-          area, unit = parse_unit(unit_blob, power)
-          @gamestate[area] = unit
+          area, area_state, dislodge_origin = parse_unit(unit_blob, power)
+          if dislodge_origin
+            @gamestate.dislodges[area] = DislodgeTuple.new(area_state.unit, dislodge_origin)
+          else
+            @gamestate[area] = area_state
+          end
         end
       end
 
@@ -43,8 +47,9 @@ module Diplomacy
     end
 
     def parse_unit(blob, power)
-      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(\((?'unit_area_coast'.+?)\))?/.match(blob)
-      return :"#{m['unit_area']}", AreaState.new(nil, Unit.new( power.to_sym, unit_type(m['unit_type'])), m['unit_area_coast'])
+      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(\((?'unit_area_coast'.+?)\))?(\*(?'dislodge_origin'\w{3}))?/.match(blob)
+      dislodge_origin = m['dislodge_origin'].nil? ? nil : m['dislodge_origin'].to_sym
+      return m['unit_area'].to_sym, AreaState.new(nil, Unit.new( power.to_sym, unit_type(m['unit_type'])), m['unit_area_coast']), dislodge_origin
     end
 
     def parse_area_state(blob, power)
