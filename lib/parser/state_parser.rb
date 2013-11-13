@@ -46,22 +46,6 @@ module Diplomacy
       @gamestate
     end
 
-    def parse_unit(blob, power)
-      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(\((?'unit_area_coast'.+?)\))?(\*(?'dislodge_origin'\w{3}))?/.match(blob)
-      dislodge_origin = m['dislodge_origin'].nil? ? nil : m['dislodge_origin'].to_sym
-      return m['unit_area'].to_sym, AreaState.new(nil, Unit.new( power.to_sym, unit_type(m['unit_type'])), m['unit_area_coast']), dislodge_origin
-    end
-
-    def parse_area_state(blob, power)
-      m = /(\w{3})/.match(blob)
-      return m[1], AreaState.new(power.to_sym, nil)
-    end
-
-    def unit_type(abbrv)
-      return Unit::ARMY if abbrv == "A"
-      return Unit::FLEET if abbrv == "F"
-    end
-
     def dump_state
       output = []
       powers = {}
@@ -97,6 +81,24 @@ module Diplomacy
         output << dump_power(power, state)
       end
       output.join " "
+    end
+
+    private
+
+    def parse_unit(blob, power)
+      m = /(?'unit_type'[AF])(?'unit_area'\w{3})(\((?'unit_area_coast'.+?)\))?(\*(?'dislodge_origin'\w{3}))?/.match(blob)
+      dislodge_origin = m['dislodge_origin'].nil? ? nil : m['dislodge_origin'].to_sym
+      return m['unit_area'].to_sym, AreaState.new(nil, Unit.new( power.to_sym, unit_type(m['unit_type'])), m['unit_area_coast']), dislodge_origin
+    end
+
+    def parse_area_state(blob, power)
+      m = /(\w{3})/.match(blob)
+      return m[1], AreaState.new(power.to_sym, nil)
+    end
+
+    def unit_type(abbrv)
+      return Unit::ARMY if abbrv == "A"
+      return Unit::FLEET if abbrv == "F"
     end
 
     def dump_power(power, state)

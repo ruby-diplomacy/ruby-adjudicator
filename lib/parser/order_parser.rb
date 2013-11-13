@@ -19,7 +19,7 @@ module Diplomacy
           wrong_orders << order_list[index]
         end
       end
-      
+
       unless wrong_orders.empty?
         raise OrderParsingError.new(wrong_orders), "Failed to parse orders: #{wrong_orders.join(", ")}"
       end
@@ -30,7 +30,17 @@ module Diplomacy
 
       @orders
     end
-    
+
+    def parse_retreats(orderblob)
+      parse_orders(orderblob, [Retreat])
+    end
+
+    def parse_builds(orderblob)
+      parse_orders(orderblob, [Build])
+    end
+
+    private
+
     def parse_single_order(orderblob)
       # try to parse it as a move
       if /^[AF](?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?-(?'dst'\w{3})(?'dst_coast'\(.+?\))?$/ =~ orderblob
@@ -40,13 +50,13 @@ module Diplomacy
         move.dst_coast = dst_coast if not dst_coast.nil?
         return move
       end
-      
+
       # try to parse it as a hold
       if /^[AF](?'unit_area'\w{3})H$/ =~ orderblob
         unit = @gamestate[unit_area.to_sym].unit unless unit_area.nil?
         return Hold.new(unit, unit_area.to_sym)
       end
-      
+
       # try to parse it as a support
       if /^[AF](?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?S[AF](?'src'\w{3})(?'src_coast'\(.+?\))?-(?'dst'\w{3})(?'dst_coast'\(.+?\))?$/ =~ orderblob
         unit = @gamestate[unit_area.to_sym].unit unless unit_area.nil?
@@ -56,7 +66,7 @@ module Diplomacy
         support.dst_coast = dst_coast if not dst_coast.nil?
         return support
       end
-      
+
       # try to parse it as a support hold
       if /^[AF](?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?S[AF](?'dst'\w{3})(?'dst_coast'\(.+?\)?)?H$/ =~ orderblob
         unit = @gamestate[unit_area.to_sym].unit unless unit_area.nil?
@@ -65,7 +75,7 @@ module Diplomacy
         support.dst_coast = dst_coast if not dst_coast.nil?
         return support
       end
-      
+
       # try to parse it as a convoy
       if /^[AF](?'unit_area'\w{3})C[AF](?'src'\w{3})-(?'dst'\w{3})$/ =~ orderblob
         unit = @gamestate[unit_area.to_sym].unit unless unit_area.nil?
@@ -83,11 +93,11 @@ module Diplomacy
 
       # try to parse it as a build
       if /^(?'unit_type'[AF])(?'unit_area'\w{3})(?'unit_area_coast'\(.+?\))?(?'build'[BD])$/ =~ orderblob
-      	is_build = (build == 'B')
+        is_build = (build == 'B')
         is_army = (unit_type == 'A')
 
 
-      	if is_build
+        if is_build
           unit = Unit.new @gamestate[(unit_area + (unit_area_coast || "") ).to_sym].owner, (is_army ? Unit::ARMY : Unit::FLEET)
         else
           unit = @gamestate[(unit_area + (unit_area_coast || "") ).to_sym].unit
@@ -99,14 +109,6 @@ module Diplomacy
       end
 
       return nil
-    end
-
-    def parse_retreats(orderblob)
-      parse_orders(orderblob, classes=[Retreat])
-    end
-
-    def parse_builds(orderblob)
-      parse_orders(orderblob, classes=[Build])
     end
   end
 
