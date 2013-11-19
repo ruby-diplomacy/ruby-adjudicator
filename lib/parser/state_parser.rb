@@ -1,18 +1,28 @@
 module Diplomacy
   class StateParser
+    Embattled_prefix = "Embattled:"
+
     def initialize(gamestate = nil)
       @gamestate = gamestate || GameState.new
     end
 
     def parse_state(blob)
       @gamestate = GameState.new
-      state_by_power = blob.split
+
+      segments = blob.split
+
+      embattled_blob = extract_embattled(segments)
+
+      state_by_power = segments
       state_by_power.each do |string|
         power, state = string.split(":")
         if power and state
           parse_power_state(state, power)
         end
       end
+
+      parse_embattled(embattled_blob)
+
       @gamestate
     end
 
@@ -80,6 +90,9 @@ module Diplomacy
       powers.each do |power, state|
         output << dump_power(power, state)
       end
+
+      output << dump_embattled(@gamestate.embattled) unless @gamestate.embattled.nil? or @gamestate.embattled.empty?
+
       output.join " "
     end
 
@@ -99,6 +112,25 @@ module Diplomacy
     def unit_type(abbrv)
       return Unit::ARMY if abbrv == "A"
       return Unit::FLEET if abbrv == "F"
+    end
+
+    def extract_embattled(segments)
+      if segments[-1].start_with? Embattled_prefix
+        segments.pop.split(":")[1]
+      end
+    end
+
+    def parse_embattled(embattled_blob)
+      return if embattled_blob.nil? or embattled_blob.empty?
+
+      embattled_blob.split(",").each do |area|
+        area = area.to_sym
+        if @gamestate.has_key? area
+          @gamestate[area].embattled = true
+        else
+          @gamestate[area] = AreaState.new(nil, nil, nil, true)
+        end
+      end
     end
 
     def dump_power(power, state)
@@ -128,6 +160,10 @@ module Diplomacy
 
     def dump_dislodge(area, dislodge_tuple)
       "#{dump_unit(area, dislodge_tuple.unit)}*#{dislodge_tuple.origin_area}"
+    end
+
+    def dump_embattled(embattled)
+      Embattled_prefix + embattled.join(",")
     end
 
     def self.empty_power_state

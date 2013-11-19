@@ -3,10 +3,10 @@ module Diplomacy
   class Unit
     ARMY = 1
     FLEET = 2
-    
+
     attr_accessor :nationality
     attr_accessor :type
-    
+
     def initialize(nationality=nil, type=nil)
       @nationality = nationality
       @type = type
@@ -80,6 +80,10 @@ module Diplomacy
       elsif Symbol === area
         @dislodges[area] || DislodgeTuple.new(nil, nil)
       end
+    end
+
+    def embattled
+      (self.select {|area, area_state| area_state.embattled }).keys
     end
 
     def area_unit(area)

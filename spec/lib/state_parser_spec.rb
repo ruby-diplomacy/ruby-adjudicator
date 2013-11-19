@@ -82,6 +82,34 @@ module Diplomacy
           @gamestate.dislodges.length.should eq(1)
         end
       end
+
+      context "Germany really has it in for Austria" do
+        before :each do
+          @sp = StateParser.new
+          blob = "Germany:AMun,ABoh,ATyr,AGal|Mun,Sil,Boh,Tyr,Gal Austria:AVie*Sil|Vie Embattled:Vie"
+          @gamestate = @sp.parse_state blob
+        end
+
+        it "marks Vienna as embattled" do
+          @gamestate[:Vie].embattled.should be_true
+        end
+
+        it "doesn't mark Munich as embattled" do
+          @gamestate[:Mun].embattled.should be_false
+        end
+
+        it "sets Austria as the owner of Vienna" do
+          @gamestate[:Vie].owner.should eq(:Austria)
+        end
+
+        it "places the Austrian army in dislodges" do
+          dislodge_tuple = @gamestate.dislodges[:Vie]
+
+          dislodge_tuple.unit.should_not be_nil
+          dislodge_tuple.unit.nationality.should eq(:Austria)
+          dislodge_tuple.unit.type.should eq(Unit::ARMY)
+        end
+      end
     end
 
     describe "dumping" do
@@ -119,11 +147,19 @@ module Diplomacy
         sp = StateParser.new gamestate
         sp.dump_state.should eq("England:ABel,FNth,FEng|Bel France:ABel*Lon")
       end
+
+      it "dumps correctly a state with an embattled area" do
+        gamestate = GameState.new
+        gamestate[:Vie] = AreaState.new(:Germany, Unit.new(:Germany, Unit::ARMY), nil, true)
+
+        sp = StateParser.new gamestate
+        sp.dump_state.should eq("Germany:AVie|Vie Embattled:Vie")
+      end
     end
   end
 
   describe "parsing and dumping" do
-    it "preserves information when parsing and dumping" do
+    it "preserves information" do
       blob = "Italy:ATyr,AVen,FIon|Ven,Apu,Tus,Pie,Rom,Nap Austria:FAlb,ASer,ABud|Bud,Boh,Gal,Vie,Tri,Tyr"
       sp = StateParser.new
       gamestate = sp.parse_state blob
